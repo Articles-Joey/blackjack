@@ -1,0 +1,113 @@
+@use "@/styles/components/global.scss" as *;
+
+.blackjack-page {
+    position: relative;
+    // padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    // justify-content: center;
+    // align-items: center;
+    // min-height: calc(100vh - 100px - 4rem);
+    padding-bottom: 1rem;
+
+    @include media-breakpoint-up(lg) {
+        min-height: calc(100vh - 2rem);
+        padding-bottom: 0rem;
+        flex-direction: row;
+        // padding-top: 10rem;
+    }
+
+    .background {
+        position: fixed;
+        top: 0px;
+        // bottom: 0px;
+        opacity: 0.5;
+        height: calc(100vh);
+        // bottom: 0px;
+        width: 100%;
+        object-fit: cover;
+        z-index: -1;
+    }
+
+    .side-bar {
+        margin: 1rem;
+
+        @include media-breakpoint-up(lg) {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .leaderboard-results {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            // grid-template-columns: repeat(2, 1fr);
+            // grid-gap: 1px;
+
+            @include media-breakpoint-up(lg) {
+                grid-gap: 0px;
+                grid-template-columns: repeat(1, 1fr);
+            }
+
+            .result {
+                padding: 0.25rem;
+                width: 100%;
+                border: 1px solid rgb(190, 190, 190);
+
+                @include media-breakpoint-up(lg) {
+                    border-right: none;
+                    border-left: none;
+                }
+            }
+        }
+    }
+
+    .game {
+        padding: 3rem 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+
+        @include media-breakpoint-up(lg) {
+            margin-left: calc(250px + 1rem);
+            margin-right: calc(250px + 1rem);
+        }
+
+        .blackjack-card {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+            width: 66px;
+            font-size: 1.5rem;
+
+            @include media-breakpoint-up(lg) {
+                height: 150px;
+                width: 100px;
+            }
+
+            &.card-red {
+                color: red;
+            }
+        }
+    }
+
+    .ad-wrap {
+        margin-left: auto;
+        margin-right: auto;
+
+        @include media-breakpoint-up(lg) {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 1rem;
+        }
+    }
+}
