@@ -3,3 +3,11 @@
 
 @use "./pages/landing" as *;
 // @use "./pages/game" as *;
+
+// .blackjack-page {
+//     background-color: white;
+// }
+
+button, .btn {
+    font-size: 0.8rem!important;
+}

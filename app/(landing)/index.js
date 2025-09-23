@@ -22,6 +22,7 @@ import ViewUserModal from '@/components/UI/ViewUserModal'
 import ArticlesButton from '@/components/UI/Button'
 import useUserDetails from '@/hooks/user/useUserDetails';
 import useUserToken from '@/hooks/user/useUserToken';
+import useFullscreen from '@/hooks/useFullScreen';
 
 // const Ad = dynamic(() => import('components/Ads/Ad'), {
 //     ssr: false,
@@ -49,6 +50,12 @@ export default function BlackjackPage() {
     } = useUserDetails({
         token: userToken
     });
+
+    const {
+        isFullscreen,
+        requestFullscreen,
+        exitFullscreen,
+    } = useFullscreen();
 
     // const userReduxState = useSelector((state) => state.auth.user_details);
     const userReduxState = false
@@ -531,7 +538,7 @@ export default function BlackjackPage() {
     }
 
     return (
-        <div className='blackjack-page'>
+        <div className='blackjack-page' id='fullscreen-root'>
 
             <img
                 className="background"
@@ -546,7 +553,12 @@ export default function BlackjackPage() {
                         style={{ marginBottom: '0.5rem' }}
                         small
                         onClick={() => {
-
+                            axios.post('/api/user/signout').then(response => {
+                                
+                                // console.log(response.data)
+                            })
+                            // userTokenMutate()
+                            // userDetailsMutate()
                         }}
                     >
                         <i className="fad fa-sign-out fa-rotate-180"></i>
@@ -566,18 +578,39 @@ export default function BlackjackPage() {
                     </ArticlesButton>
                 }
 
-                <Link href={'https://github.com/Articles-Joey/blackjack'} target='_blank' rel='noopener noreferrer' className='w-100 mb-2'>
+                <div className='d-flex mb-2'>
+
+                    <Link href={'https://github.com/Articles-Joey/blackjack'} target='_blank' rel='noopener noreferrer' className='w-100'>
+                        <ArticlesButton
+                            className={`w-100`}
+                            small
+                            onClick={() => {
+    
+                            }}
+                        >
+                            <i className="fab fa-github"></i>
+                            Github
+                        </ArticlesButton>
+                    </Link>
+    
                     <ArticlesButton
                         className={`w-100`}
                         small
+                        active={isFullscreen}
                         onClick={() => {
-
+                            if (!isFullscreen) {
+                                requestFullscreen('fullscreen-root')
+                            } else {
+                                exitFullscreen()
+                            }
                         }}
                     >
-                        <i className="fab fa-github"></i>
-                        Github
+                        <i className="fab fa-fullscreen"></i>
+                        {isFullscreen ? 'Exit Full' : 'Fullscreen'}
+                        {/* Fullscreen */}
                     </ArticlesButton>
-                </Link>
+
+                </div>
 
                 {userDetails &&
                     <div className="card card-articles card-sm mb-2">
@@ -633,7 +666,7 @@ export default function BlackjackPage() {
                                 Top 100
                             </span>
 
-                            <span onClick={() => getLeaderboard()} className="badge bg-black badge-hover shadow-articles">
+                            <span onClick={() => getLeaderboard()} className="badge bg-black badge-hover shadow-articles" style={{ cursor: 'pointer', marginLeft: '0.25rem' }}>
                                 <i className='fad fa-redo me-0'></i>
                             </span>
                         </div>
