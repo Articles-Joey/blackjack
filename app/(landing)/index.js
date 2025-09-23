@@ -699,27 +699,26 @@ export default function BlackjackPage() {
 
                 <img className='mb-1' src="/img/chip.gif" height={50} alt="" />
 
-                {!userDetails?.user_id ? <div>
-                    <h4 className='mt-3'>Please login to play</h4>
-                    <div className='d-flex justify-content-center mb-4'>
-                        {/* <Link
+                {!userDetails?.user_id ?
+                    <div>
+                        <h4 className='mt-3'>Please login to play</h4>
+                        <div className='d-flex justify-content-center mb-4'>
+                            {/* <Link
                             href={'/'}
                             className=""
                         > */}
-                        <ArticlesButton
-                            onClick={() => {
-                                userTokenMutate()
-                                userDetailsMutate()
-                            }}
-                        >
-                            Login
-                        </ArticlesButton>
-                        {/* </Link> */}
+                            <ArticlesButton
+                                onClick={() => {
+                                    userTokenMutate()
+                                    userDetailsMutate()
+                                }}
+                            >
+                                Login
+                            </ArticlesButton>
+                            {/* </Link> */}
+                        </div>
                     </div>
-                </div>
-
                     :
-
                     <>
                         <div className="buttons mb-2">
                             {currentBet &&
