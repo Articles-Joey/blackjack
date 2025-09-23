@@ -18,6 +18,10 @@ export async function GET(req) {
 
         const oauth_token = session_token;
 
+        if (!session_token) {
+            return NextResponse.json({ error: 'No session token found' }, { status: 400 });
+        }
+
         return NextResponse.json(session_token, { status: 200 });
         
     } catch (error) {

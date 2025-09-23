@@ -514,6 +514,22 @@ export default function BlackjackPage() {
 
     }, []);
 
+    function handleSignInRedirect() {
+        console.log("TODO")
+
+        let newLink = ''
+
+        if (false) {
+            newLink = `https://accounts.articles.media`;
+        } else {
+            newLink = process.env.NEXT_PUBLIC_LOCAL_ACCOUNTS_ADDRESS;
+        }
+
+        newLink = newLink + `/login?redirect=` + encodeURIComponent(window.location.href) + `&type=subdomain`
+
+        window.location.href = newLink
+    }
+
     return (
         <div className='blackjack-page'>
 
@@ -524,19 +540,33 @@ export default function BlackjackPage() {
 
             <div className="side-bar">
 
-                <ArticlesButton
-                    className={`w-100`}
-                    style={{ marginBottom: '0.5rem' }}
-                    small
-                    onClick={() => {
+                {userDetails ?
+                    <ArticlesButton
+                        className={`w-100`}
+                        style={{ marginBottom: '0.5rem' }}
+                        small
+                        onClick={() => {
 
-                    }}
-                >
-                    <i className="fad fa-sign-out fa-rotate-180"></i>
-                    Sign Out
-                </ArticlesButton>
+                        }}
+                    >
+                        <i className="fad fa-sign-out fa-rotate-180"></i>
+                        Sign Out
+                    </ArticlesButton>
+                    :
+                    <ArticlesButton
+                        className={`w-100`}
+                        style={{ marginBottom: '0.5rem' }}
+                        small
+                        onClick={() => {
+                            handleSignInRedirect()
+                        }}
+                    >
+                        <i className="fad fa-sign-in fa-rotate-180"></i>
+                        Sign In
+                    </ArticlesButton>
+                }
 
-                <Link href={'/'} className='w-100 mb-2'>
+                <Link href={'https://github.com/Articles-Joey/blackjack'} target='_blank' rel='noopener noreferrer' className='w-100 mb-2'>
                     <ArticlesButton
                         className={`w-100`}
                         small
@@ -544,51 +574,53 @@ export default function BlackjackPage() {
 
                         }}
                     >
-                        <i className="fad fa-sign-out fa-rotate-180"></i>
-                        Leave Game
+                        <i className="fab fa-github"></i>
+                        Github
                     </ArticlesButton>
                 </Link>
 
-                <div className="card card-articles card-sm mb-2">
+                {userDetails &&
+                    <div className="card card-articles card-sm mb-2">
 
-                    <div className="card-header py-2 d-flex justify-content-between">
+                        <div className="card-header py-2 d-flex justify-content-between">
 
-                        <h6 className='mb-0'>Next Claim</h6>
+                            <h6 className='mb-0'>Next Claim</h6>
 
-                        <div className="badge bg-articles-secondary shadow-articles">
-                            {/* <div><small>{format(new Date(), 'MM/dd/yy hh:mmaa')}</small></div> */}
-                            {lastClaim &&
-                                <Countdown
-                                    daysInHours={true}
-                                    date={add(new Date(lastClaim), { hours: 24 })}
-                                />
-                            }
+                            <div className="badge bg-black shadow-articles">
+                                {/* <div><small>{format(new Date(), 'MM/dd/yy hh:mmaa')}</small></div> */}
+                                {lastClaim &&
+                                    <Countdown
+                                        daysInHours={true}
+                                        date={add(new Date(lastClaim), { hours: 24 })}
+                                    />
+                                }
+                            </div>
+
+                        </div>
+
+                        <div className="card-body p-2">
+
+                            <div><small>One claim per 24 hours</small></div>
+
+                            {/* <div>+100 points</div> */}
+                            <ArticlesButton
+                                disabled={differenceInHours(new Date(), new Date(lastClaim)) < 24 || !userDetails}
+                                className="mb-1 w-100"
+                                onClick={() => {
+                                    claim()
+                                }}
+                            >
+                                Claim 100 Points
+                            </ArticlesButton>
+
+                            <div className='lh-sm'>
+                                {lastClaim && <div className='l'><small>Next claim {format(add(new Date(lastClaim), { hours: 24 }), 'MM/dd/yy hh:mmaa')}</small></div>}
+                            </div>
+
                         </div>
 
                     </div>
-
-                    <div className="card-body p-2">
-
-                        <div><small>One claim per 24 hours</small></div>
-
-                        {/* <div>+100 points</div> */}
-                        <ArticlesButton
-                            disabled={differenceInHours(new Date(), new Date(lastClaim)) < 24 || !userDetails}
-                            className="mb-1 w-100"
-                            onClick={() => {
-                                claim()
-                            }}
-                        >
-                            Claim 100 Points
-                        </ArticlesButton>
-
-                        <div className='lh-sm'>
-                            {lastClaim && <div className='l'><small>Next claim {format(add(new Date(lastClaim), { hours: 24 }), 'MM/dd/yy hh:mmaa')}</small></div>}
-                        </div>
-
-                    </div>
-
-                </div>
+                }
 
                 <div className="card card-articles">
 
@@ -597,11 +629,11 @@ export default function BlackjackPage() {
                         <h6 className='mb-0'>Leaderboard</h6>
 
                         <div>
-                            <span className="badge bg-articles-secondary shadow-articles">
+                            <span className="badge bg-black shadow-articles">
                                 Top 100
                             </span>
 
-                            <span onClick={() => getLeaderboard()} className="badge bg-articles-secondary badge-hover shadow-articles">
+                            <span onClick={() => getLeaderboard()} className="badge bg-black badge-hover shadow-articles">
                                 <i className='fad fa-redo me-0'></i>
                             </span>
                         </div>
@@ -697,11 +729,11 @@ export default function BlackjackPage() {
 
             <div className='game'>
 
-                <img className='mb-1' src="/img/chip.gif" height={50} alt="" />
+                <img className='mb-1' src="/img/icon.png" height={100} alt="" />
 
                 {!userDetails?.user_id ?
                     <div>
-                        <h4 className='mt-3'>Please login to play</h4>
+                        <h4 className='mb-3 mt-2'>Please login to play</h4>
                         <div className='d-flex justify-content-center mb-4'>
                             {/* <Link
                             href={'/'}
@@ -709,8 +741,9 @@ export default function BlackjackPage() {
                         > */}
                             <ArticlesButton
                                 onClick={() => {
-                                    userTokenMutate()
-                                    userDetailsMutate()
+                                    // userTokenMutate()
+                                    // userDetailsMutate()
+                                    handleSignInRedirect()
                                 }}
                             >
                                 Login
