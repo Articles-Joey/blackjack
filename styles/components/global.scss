@@ -1,3 +1,5 @@
+@use "sass:map";
+
 // Define Bootstrap-like breakpoints
 $grid-breakpoints: (
     xs: 0,
@@ -10,7 +12,7 @@ $grid-breakpoints: (
 
 // Mixin for media-breakpoint-up
 @mixin media-breakpoint-up($name) {
-    $min: map-get($grid-breakpoints, $name);
+    $min: map.get($grid-breakpoints, $name);
     @if $min != null and $min != 0 {
         @media (min-width: $min) {
             @content;
@@ -22,7 +24,7 @@ $grid-breakpoints: (
 
 // Mixin for media-breakpoint-down
 @mixin media-breakpoint-down($name) {
-    $max: map-get($grid-breakpoints, $name);
+    $max: map.get($grid-breakpoints, $name);
     @if $max != null and $max != 0 {
         @media (max-width: $max) {
             @content;
