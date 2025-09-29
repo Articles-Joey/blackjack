@@ -12,6 +12,12 @@ First, run the development server:
 npm run dev
 ```
 
+NOTE: accounts.articles.media repo not public yet so multiplayer development limited as others can not reproduce env at this time.
+
+Access to the accounts.articles.media API is needed for multiplayer development and should be ran locally on http://localhost:3012
+
+[Github repo for accounts.articles.media](https://github.com/Articles-Joey/accounts.articles.media)
+
 ## Multiplayer
 
 One day I plan to do multiplayer sessions over P2P.

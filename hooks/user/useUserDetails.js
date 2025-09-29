@@ -17,7 +17,8 @@ const useUserDetails = (params) => {
         params.token ?
             {
                 // url: "/api/details",
-                url: "http://localhost:3012/api/auth/session",
+                // url: "http://localhost:3012/api/auth/session",
+                url: (process.env.NODE_ENV === "development" ? "http://localhost:3012" : "https://accounts.articles.media") + '/api/auth/session',
                 token: params.token,
             }
             :

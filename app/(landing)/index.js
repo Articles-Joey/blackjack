@@ -605,7 +605,7 @@ export default function BlackjackPage() {
                             }
                         }}
                     >
-                        <i className="fab fa-fullscreen"></i>
+                        <i className="fad fa-expand"></i>
                         {isFullscreen ? 'Exit Full' : 'Fullscreen'}
                         {/* Fullscreen */}
                     </ArticlesButton>
