@@ -3,10 +3,24 @@ import { ObjectId } from 'mongodb';
 import { NextResponse } from 'next/server';
 
 import clientPromise from '@/util/mongodb';
+import verifySession from '@/util/verifySession';
 
 export async function GET(req) {
+
     const db = (await clientPromise).db();
     const userId = req.headers.get('x-user-id');
+    console.log("userId", userId)
+    // return NextResponse.json({ error: 'TEST' }, { status: 401 });
+
+    // const cookieStore = await cookies();
+    // const session_token = cookieStore.get('sess')?.value
+
+    // const userDetails = await verifySession()
+    // if ( !userDetails ) {
+    //     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // } else {
+    //     console.log("userDetails", userDetails)
+    // }
 
     // Check last claim date
     var result = await db

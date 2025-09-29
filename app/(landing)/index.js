@@ -470,10 +470,7 @@ export default function BlackjackPage() {
             })
     }
 
-    useEffect(() => {
-
-        getLeaderboard()
-
+    function getWalletBalance() {
         axios.get('/api/user/wallet-balance')
             .then(response => {
                 // console.log("This ran wallet bal")
@@ -500,6 +497,13 @@ export default function BlackjackPage() {
             .catch(response => {
                 console.log(response.data)
             })
+    }
+
+    useEffect(() => {
+
+        getLeaderboard()
+
+        getWalletBalance()
 
         // const body = document.querySelector('body');
         // body.addEventListener('keydown', handleKeyDown.bind(this));
@@ -554,7 +558,7 @@ export default function BlackjackPage() {
                         small
                         onClick={() => {
                             axios.post('/api/user/signout').then(response => {
-                                
+
                                 // console.log(response.data)
                             })
                             // userTokenMutate()
@@ -585,14 +589,14 @@ export default function BlackjackPage() {
                             className={`w-100`}
                             small
                             onClick={() => {
-    
+
                             }}
                         >
                             <i className="fab fa-github"></i>
                             Github
                         </ArticlesButton>
                     </Link>
-    
+
                     <ArticlesButton
                         className={`w-100`}
                         small
@@ -615,18 +619,27 @@ export default function BlackjackPage() {
                 {userDetails &&
                     <div className="card card-articles card-sm mb-2">
 
-                        <div className="card-header py-2 d-flex justify-content-between">
+                        <div className="card-header py-2 d-flex justify-content-between align-items-center">
 
                             <h6 className='mb-0'>Next Claim</h6>
 
-                            <div className="badge bg-black shadow-articles">
-                                {/* <div><small>{format(new Date(), 'MM/dd/yy hh:mmaa')}</small></div> */}
-                                {lastClaim &&
-                                    <Countdown
-                                        daysInHours={true}
-                                        date={add(new Date(lastClaim), { hours: 24 })}
-                                    />
-                                }
+                            <div>
+                                <div className="badge bg-black shadow-articles me-1">
+                                    {/* <div><small>{format(new Date(), 'MM/dd/yy hh:mmaa')}</small></div> */}
+                                    {lastClaim &&
+                                        <Countdown
+                                            daysInHours={true}
+                                            date={add(new Date(lastClaim), { hours: 24 })}
+                                        />
+                                    }
+                                </div>
+    
+                                <div 
+                                    className="badge bg-dark badge-hover shadow-articles"
+                                    onClick={() => getWalletBalance()}
+                                >
+                                    <i className="fad fa-redo me-0"></i>
+                                </div>
                             </div>
 
                         </div>
@@ -662,11 +675,11 @@ export default function BlackjackPage() {
                         <h6 className='mb-0'>Leaderboard</h6>
 
                         <div>
-                            <span className="badge bg-black shadow-articles">
+                            <span className="badge bg-black shadow-articles me-1">
                                 Top 100
                             </span>
 
-                            <span onClick={() => getLeaderboard()} className="badge bg-black badge-hover shadow-articles" style={{ cursor: 'pointer', marginLeft: '0.25rem' }}>
+                            <span onClick={() => getLeaderboard()} className="badge bg-black badge-hover shadow-articles">
                                 <i className='fad fa-redo me-0'></i>
                             </span>
                         </div>
