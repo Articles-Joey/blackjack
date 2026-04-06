@@ -1,78 +1,72 @@
-"use client"
 // import { create } from 'zustand'
 import { createWithEqualityFn as create } from 'zustand/traditional'
-// import { nanoid } from 'nanoid'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
-const getLocalStorage = (key) => JSON.parse(window.localStorage.getItem(key))
-const setLocalStorage = (key, value) => window.localStorage.setItem(key, JSON.stringify(value))
+export const useGameStore = create()(
+    persist(
+        (set, get) => ({
 
-export const useGameStore = create((set) => ({
+            nickname: '',
+            setNickname: (newValue) => {
+                set((prev) => ({
+                    nickname: newValue
+                }))
+            },
 
-    // Mouse and Keyboard
-    // Touch
-    controlType: "Mouse and Keyboard",
-    setControlType: (newValue) => {
-        set((prev) => ({
-            controlType: newValue
-        }))
-    },
+            darkMode: false,
+            toggleDarkMode: () => {
+                set((prev) => ({
+                    darkMode: !prev.darkMode
+                }))
+            },
+            setDarkMode: (newValue) => {
+                set((prev) => ({
+                    darkMode: newValue
+                }))
+            },
 
-    topCheckpoint: getLocalStorage('game:trash-chute:topCheckpoint'),
-    setTopCheckpoint: (newValue) => {
-        set((prev) => ({
-            topCheckpoint: newValue
-        }))
-        setLocalStorage('game:trash-chute:topCheckpoint', newValue)
-    },
+            infoModal: false,
+            setInfoModal: (newValue) => {
+                set((prev) => ({
+                    infoModal: newValue
+                }))
+            },
 
-    debug: false,
-    setDebug: (newValue) => {
-        set((prev) => ({
-            debug: newValue
-        }))
-    },
+            settingsModal: false,
+            setSettingsModal: (newValue) => {
+                set((prev) => ({
+                    settingsModal: newValue
+                }))
+            },
 
-    // galleryTheme: "Forest",
-    // setGalleryTheme: (newValue) => {
-    //     set((prev) => ({
-    //         galleryTheme: newValue
-    //     }))
-    // },
+            creditsModal: false,
+            setCreditsModal: (newValue) => {
+                set((prev) => ({
+                    creditsModal: newValue
+                }))
+            },
 
-    // music: false,
-    // setMusic: (newValue) => {
-    //     set((prev) => ({
-    //         music: newValue
-    //     }))
-    // },
+            showMenu: false,
+            setShowMenu: (newValue) => {
+                set((prev) => ({
+                    showMenu: newValue
+                }))
+            },
 
-    // playerRotation: false,
-    // setPlayerRotation: (newValue) => {
-    //     set((prev) => ({
-    //         playerRotation: newValue
-    //     }))
-    // },
-
-    // multiplayer: {},
-    // setMultiplayer: (newValue) => {
-    //     set((prev) => ({
-    //         multiplayer: newValue
-    //     }))
-    // },
-
-    // playerLocation: false,
-    // setPlayerLocation: (newValue) => {
-    //     set((prev) => ({
-    //         playerLocation: newValue
-    //     }))
-    // },
-
-    ref: null,
-	api: null,
-    position: [0, 0, 0], // Initial sphere position
-	setPlayer: (ref, api) => set({ ref, api }),
-    setPosition: (position) => set({ position }),
-
-    tagCounter: 0,
-    setTagCounter: (tagCounter) => set({ tagCounter }),
-}))
+        }),
+        {
+            name: 'catching-game-store', // name of the item in the storage (must be unique)
+            // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
+            partialize: (state) =>
+                Object.fromEntries(
+                    Object.entries(state).filter(([key]) => ![
+                        // Exclude list of keys to not persist
+                        'infoModal',
+                        'settingsModal',
+                        'creditsModal',
+                        'showMenu'
+                    ].includes(key))
+                ),
+        },
+    ),
+)

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import verifySession from './util/verifySession';
 
-export async function middleware(request) {
+export async function proxy(request) {
 
     // console.log("request.nextUrl.pathname", request.nextUrl.pathname)
 

@@ -6,7 +6,9 @@ import Modal from 'react-bootstrap/Modal';
 
 // import { useHotkeys } from 'react-hotkeys-hook';
 
-import ViewUserModal from '@/components/UI/ViewUserModal';
+// import ViewUserModal from '@/components/UI/ViewUserModal';
+import ViewUserModal from '@articles-media/articles-dev-box/ViewUserModal';
+
 import ArticlesSwitch from '@/components/UI/ArticlesSwitch';
 import ArticlesButton from '@/components/UI/Button';
 import useGameScoreboard from '@/hooks/useGameScoreboard';

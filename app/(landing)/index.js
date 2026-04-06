@@ -14,7 +14,10 @@ import Countdown from 'react-countdown';
 
 import { format, add, differenceInHours } from 'date-fns';
 
-import ViewUserModal from '@/components/UI/ViewUserModal'
+import Ad from '@articles-media/articles-dev-box/Ad';
+
+// import ViewUserModal from '@/components/UI/ViewUserModal'
+import ViewUserModal from '@articles-media/articles-dev-box/ViewUserModal';
 
 // import ROUTES from 'components/constants/routes';
 
@@ -23,17 +26,23 @@ import ArticlesButton from '@/components/UI/Button'
 import useUserDetails from '@/hooks/user/useUserDetails';
 import useUserToken from '@/hooks/user/useUserToken';
 import useFullscreen from '@/hooks/useFullScreen';
+import { useGameStore } from '@/hooks/useGameStore';
+// import ArticlesAd from '@/components/ArticlesAd';
 
 // const Ad = dynamic(() => import('components/Ads/Ad'), {
 //     ssr: false,
 // });
 
+const game_name = "Blackjack";
+
 export default function BlackjackPage() {
 
     // const { session, status } = useSession()
-    const session = {
+    // const session = {
 
-    }
+    // }
+
+    const darkMode = useGameStore((state) => state.darkMode);
 
     const {
         data: userToken,
@@ -541,6 +550,88 @@ export default function BlackjackPage() {
         window.location.href = newLink
     }
 
+    function Buttons() {
+        return (
+            <div className='d-flex flex-wrap'>
+
+                <div className='w-50 flex-shrink-0'>
+                    {userDetails ?
+                        <ArticlesButton
+                            className={`w-100`}
+                            // style={{ marginBottom: '0.5rem' }}
+                            small
+                            onClick={() => {
+                                axios.post('/api/user/signout').then(response => {
+
+                                    // console.log(response.data)
+                                })
+                                // userTokenMutate()
+                                // userDetailsMutate()
+                            }}
+                        >
+                            <i className="fad fa-sign-out fa-rotate-180"></i>
+                            Sign Out
+                        </ArticlesButton>
+                        :
+                        <ArticlesButton
+                            className={`w-100`}
+                            style={{ marginBottom: '0.5rem' }}
+                            small
+                            onClick={() => {
+                                handleSignInRedirect()
+                            }}
+                        >
+                            <i className="fad fa-sign-in fa-rotate-180"></i>
+                            Sign In
+                        </ArticlesButton>
+                    }
+                </div>
+
+                <ArticlesButton
+                    className={`w-50 flex-shrink-0`}
+                    small
+                    onClick={() => {
+                        useGameStore.getState().setDarkMode(!darkMode);
+                    }}
+                >
+                    <i className="fas fa-sun"></i>
+                    Dark Mode
+                </ArticlesButton>
+
+                <Link href={'https://github.com/Articles-Joey/blackjack'} target='_blank' rel='noopener noreferrer' className='w-50'>
+                    <ArticlesButton
+                        className={`w-100`}
+                        small
+                        onClick={() => {
+
+                        }}
+                    >
+                        <i className="fab fa-github"></i>
+                        Github
+                    </ArticlesButton>
+                </Link>
+
+                <ArticlesButton
+                    className={`w-50`}
+                    small
+                    active={isFullscreen}
+                    onClick={() => {
+                        if (!isFullscreen) {
+                            requestFullscreen('fullscreen-root')
+                        } else {
+                            exitFullscreen()
+                        }
+                    }}
+                >
+                    <i className="fad fa-expand"></i>
+                    {isFullscreen ? 'Exit Full' : 'Fullscreen'}
+                    {/* Fullscreen */}
+                </ArticlesButton>
+
+            </div>
+        )
+    }
+
     return (
         <div className='blackjack-page' id='fullscreen-root'>
 
@@ -551,70 +642,7 @@ export default function BlackjackPage() {
 
             <div className="side-bar">
 
-                {userDetails ?
-                    <ArticlesButton
-                        className={`w-100`}
-                        style={{ marginBottom: '0.5rem' }}
-                        small
-                        onClick={() => {
-                            axios.post('/api/user/signout').then(response => {
 
-                                // console.log(response.data)
-                            })
-                            // userTokenMutate()
-                            // userDetailsMutate()
-                        }}
-                    >
-                        <i className="fad fa-sign-out fa-rotate-180"></i>
-                        Sign Out
-                    </ArticlesButton>
-                    :
-                    <ArticlesButton
-                        className={`w-100`}
-                        style={{ marginBottom: '0.5rem' }}
-                        small
-                        onClick={() => {
-                            handleSignInRedirect()
-                        }}
-                    >
-                        <i className="fad fa-sign-in fa-rotate-180"></i>
-                        Sign In
-                    </ArticlesButton>
-                }
-
-                <div className='d-flex mb-2'>
-
-                    <Link href={'https://github.com/Articles-Joey/blackjack'} target='_blank' rel='noopener noreferrer' className='w-100'>
-                        <ArticlesButton
-                            className={`w-100`}
-                            small
-                            onClick={() => {
-
-                            }}
-                        >
-                            <i className="fab fa-github"></i>
-                            Github
-                        </ArticlesButton>
-                    </Link>
-
-                    <ArticlesButton
-                        className={`w-100`}
-                        small
-                        active={isFullscreen}
-                        onClick={() => {
-                            if (!isFullscreen) {
-                                requestFullscreen('fullscreen-root')
-                            } else {
-                                exitFullscreen()
-                            }
-                        }}
-                    >
-                        <i className="fad fa-expand"></i>
-                        {isFullscreen ? 'Exit Full' : 'Fullscreen'}
-                        {/* Fullscreen */}
-                    </ArticlesButton>
-
-                </div>
 
                 {userDetails &&
                     <div className="card card-articles card-sm mb-2">
@@ -633,8 +661,8 @@ export default function BlackjackPage() {
                                         />
                                     }
                                 </div>
-    
-                                <div 
+
+                                <div
                                     className="badge bg-dark badge-hover shadow-articles"
                                     onClick={() => getWalletBalance()}
                                 >
@@ -668,7 +696,7 @@ export default function BlackjackPage() {
                     </div>
                 }
 
-                <div className="card card-articles">
+                <div className="card card- mb-2">
 
                     <div className="card-header py-2 d-flex justify-content-between align-items-center">
 
@@ -770,6 +798,8 @@ export default function BlackjackPage() {
                     </div>
 
                 </div>
+
+                <Buttons />
 
             </div>
 
@@ -896,7 +926,16 @@ export default function BlackjackPage() {
 
             </div>
 
-            {/* <Ad
+            <Ad
+                style="Default"
+                section={"Games"}
+                section_id={game_name}
+                darkMode={darkMode ? true : false}
+                user_ad_token={userToken}
+                userDetails={userDetails}
+            />
+
+            {/* <ArticlesAd
                 section={"Games"}
                 section_id={'Blackjack'}
             /> */}

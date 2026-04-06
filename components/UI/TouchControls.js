@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from "react";
 
 import ArticlesButton from "@/components/UI/Button"
-import { useControlsStore, useGameStore } from "@/hooks/useGameStore"
+import { useControlsStore } from "@/hooks/useGameStore"
 
 const arePropsEqual = (prevProps, nextProps) => {
     // Compare all props for equality

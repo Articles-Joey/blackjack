@@ -1,5 +1,15 @@
 @use "@/styles/components/global.scss" as *;
 
+[data-bs-theme="dark"] {
+    .blackjack-page {
+        background-color: black;
+
+        .background {
+            opacity: 0.2;
+        }
+    }
+}
+
 .blackjack-page {
     position: relative;
     // padding: 1rem;
