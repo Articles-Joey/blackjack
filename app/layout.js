@@ -14,7 +14,7 @@ import "@articles-media/articles-dev-box/dist/style.css";
 
 import SocketLogicHandler from "@/components/SocketLogicHandler";
 import { Suspense } from 'react';
-import GlobalClientModals from '@/components/UI/GlobalClientModals';
+// import GlobalClientModals from '@/components/UI/GlobalClientModals';
 import DarkModeHandler from '@/components/UI/DarkModeHandler';
 import LayoutClient from './layout-client';
 
@@ -50,11 +50,12 @@ export default function RootLayout({ children }) {
       // className={`${geistSans.variable} ${geistMono.variable}`}
       >
 
+        <LayoutClient />
+        <SocketLogicHandler />
+
         <Suspense>
-          <SocketLogicHandler />
-          <GlobalClientModals />
-          <DarkModeHandler />
-          <LayoutClient />
+          {/* <GlobalClientModals /> */}
+          {/* <DarkModeHandler /> */}
         </Suspense>
 
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>

@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from "react";
 
 import ArticlesButton from "@/components/UI/Button"
-import { useControlsStore } from "@/hooks/useGameStore"
+import { useTouchControlsStore } from "@/hooks/useTouchControlsStore";
 
 const arePropsEqual = (prevProps, nextProps) => {
     // Compare all props for equality
@@ -12,7 +12,7 @@ function JumpButtonBase() {
 
     const {
         touchControls, setTouchControls
-    } = useControlsStore()
+    } = useTouchControlsStore()
 
     return (
         <ArticlesButton
@@ -44,7 +44,7 @@ function TouchControlsBase(props) {
 
     const {
         touchControls, setTouchControls
-    } = useControlsStore()
+    } = useTouchControlsStore()
 
     function startNipple() {
 

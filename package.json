@@ -1,6 +1,6 @@
 {
   "name": "blackjack",
-  "description": "",
+  "description": "Play without the fear of losing your money! This site offers an offline balance and an online balance. Both balances only allow the user to claim 100 points every 24 hours. Online balance API is hosted on this site and utilizes the login system of Articles Media to authenticate users.",
   "homepage": "https://blackjack.articles.media",
   "version": "1.0.0",
   "private": false,
@@ -11,7 +11,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@articles-media/articles-dev-box": "^1.0.24",
+    "@articles-media/articles-dev-box": "^1.1.2",
     "@articles-media/articles-gamepad-helper": "^0.0.13",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -21,7 +21,6 @@
     "@react-three/cannon": "^6.6.0",
     "@react-three/drei": "^10.5.0",
     "@react-three/fiber": "^9.5.0",
-    "axios": "^1.13.2",
     "bootstrap": "^5.3.8",
     "classnames": "^2.5.1",
     "date-fns": "^4.1.0",

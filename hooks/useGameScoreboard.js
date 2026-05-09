@@ -1,12 +1,11 @@
 import useSWR from "swr";
 
-import axios from "axios";
-
-const fetcher = (obj) => axios.get(obj.url, {
-    params: {
-        game: obj.game,
-    }
-}).then((res) => res.data);
+const fetcher = async (obj) => {
+    const url = new URL(obj.url, window.location.origin);
+    url.searchParams.set('game', obj.game);
+    const res = await fetch(url.toString());
+    return res.json();
+};
 
 const options = {
     dedupingInterval: ((1000 * 60) * 30),

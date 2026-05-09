@@ -1,17 +1,49 @@
 // import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { createWithEqualityFn as create } from 'zustand/traditional'
 
-export const useTouchControlsStore = create((set) => ({
+const useTouchControlsStore = create()(
+    persist(
+        (set, get) => ({
 
-    touchControls: {
-        jump: false,
-        left: false,
-        right: false
-    },
-    setTouchControls: (newValue) => {
-        set((prev) => ({
-            touchControls: newValue
-        }))
-    }
+            enabled: false,
+            toggleEnabled: () => {
+                set(() => ({
+                    enabled: !get().enabled
+                }))
+            },
+            setEnabled: (newValue) => {
+                set((prev) => ({
+                    enabled: newValue
+                }))
+            },
 
-}))
+            touchControls: {
+                jump: false,
+                left: false,
+                right: false,
+                up: false,
+                down: false,
+            },
+            setTouchControls: (newValue) => {
+                set((prev) => ({
+                    touchControls: newValue
+                }))
+            }
+
+        }),
+        {
+            name: 'touch-controls-store',
+            version: 1,
+            partialize: (state) => ({
+                enabled: state.enabled,
+                // touchControls: state.touchControls
+            }),
+            // onRehydrateStorage: () => (state) => {
+            //     state.setHasHydrated(true)
+            // },
+        },
+    ),
+)
+
+export default useTouchControlsStore
