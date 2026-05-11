@@ -182,7 +182,7 @@ export default function Sidebar() {
                             Top 100
                         </span>
 
-                        <span onClick={() => getLeaderboard()} className="badge bg-black badge-hover shadow-articles">
+                        <span onClick={() => getLeaderboard()} className="badge bg-dark badge-hover shadow-articles">
                             <i className='fad fa-redo me-0'></i>
                         </span>
                     </div>

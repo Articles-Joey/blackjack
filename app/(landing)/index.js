@@ -16,6 +16,7 @@ import { useGameState } from '@/hooks/useGameState';
 import Sidebar from '@/components/UI/Sidebar';
 import SessionButton from '@articles-media/articles-dev-box/SessionButton';
 import AudioHandler from '@/components/AudioHandler';
+import { useAudioStore } from '@/hooks/useAudioStore';
 
 const game_name = "Blackjack";
 
@@ -156,7 +157,10 @@ export default function BlackjackPage() {
                                     <ArticlesButton
                                         className=''
                                         small
-                                        onClick={() => { placeBet(userDetails) }}
+                                        onClick={() => { 
+                                            useAudioStore.getState().playCardSound()
+                                            placeBet(userDetails) 
+                                        }}
                                     >
                                         Place Bet
                                     </ArticlesButton>

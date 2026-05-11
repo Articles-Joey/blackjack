@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { useAudioStore } from './useAudioStore';
 
 export const useGameState = create((set, get) => ({
 
@@ -135,6 +136,9 @@ export const useGameState = create((set, get) => ({
     hit: () => {
         const { gameOver, currentBet, deck, player, getRandomCard, getCount } = get();
         if (!gameOver) {
+
+            useAudioStore.getState().playCardSound()
+
             if (currentBet) {
                 const { randomCard, updatedDeck } = getRandomCard(deck);
                 const new_player = { ...player, cards: [...player.cards, randomCard] };
@@ -155,6 +159,9 @@ export const useGameState = create((set, get) => ({
     stand: (userDetails) => {
         const { gameOver, deck, dealer, player, wallet, currentBet, leaderboard, getRandomCard, getCount, dealerDraw, getWinner } = get();
         if (!gameOver) {
+
+            useAudioStore.getState().playCardSound()
+
             const randomCard = getRandomCard(deck);
             let updated_deck = randomCard.updatedDeck;
             // Replace placeholder {} second card with the revealed card

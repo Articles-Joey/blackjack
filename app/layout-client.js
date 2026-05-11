@@ -59,7 +59,7 @@ export default function LayoutClient({ children }) {
                                 ]
                             },
                             'Controls': {
-                                touchControls: true
+                                // touchControls: true
                                 // defaultKeyBindings: {
                                 //     // moveUp: "W",
                                 //     // moveDown: "S",
@@ -79,6 +79,9 @@ export default function LayoutClient({ children }) {
 
                                 </>,
                             }
+                        },
+                        reset: () => {
+                            useAudioStore.getState().resetAudioSettings();
                         }
                     }}
                     infoModalConfig={{
