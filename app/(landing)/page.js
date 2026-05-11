@@ -1,7 +1,7 @@
 import LobbyPage from "."
 
 export const metadata = {
-    title: `Blackjack`,
+    title: process.env.NEXT_PUBLIC_GAME_NAME,
 }
 
 export default function Home() {

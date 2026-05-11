@@ -48,14 +48,6 @@ export default function LayoutClient({ children }) {
                                     })) 
                                     : 
                                     [],
-                                    // {
-                                    //     key: "gameVolume",
-                                    //     label: "Game Volume"
-                                    // },
-                                    // {
-                                    //     key: "musicVolume",
-                                    //     label: "Music Volume"
-                                    // }
                                 ]
                             },
                             'Controls': {
@@ -68,7 +60,7 @@ export default function LayoutClient({ children }) {
                                 // }
                             },
                             'Multiplayer': {
-                                serverUrl: true,
+                                // serverUrl: true,
                             },
                             'Other': {
                                 // toontownMode: true,
