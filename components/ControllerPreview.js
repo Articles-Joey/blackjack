@@ -1,9 +1,13 @@
+"use client";
+
+import Box from "@mui/material/Box";
+
 import ArticlesButton from "@/components/UI/Button";
 
 const ControllerPreview = ({ controllerState, showJSON, showPreview, maxHeight, showVibrationControls }) => {
 
     return (
-        <div style={{
+        <Box sx={{
             ...(maxHeight && {
                 maxHeight: maxHeight,
                 overflowY: 'auto'
@@ -127,7 +131,7 @@ const ControllerPreview = ({ controllerState, showJSON, showPreview, maxHeight, 
             }
 
             {showVibrationControls &&
-                <div>
+                <Box>
                     <ArticlesButton
                         small
                         onClick={() => {
@@ -158,19 +162,19 @@ const ControllerPreview = ({ controllerState, showJSON, showPreview, maxHeight, 
                     >
                         Calm
                     </ArticlesButton>
-                </div>
+                </Box>
             }
 
             {showJSON &&
-                <div>
+                <Box>
                     <pre>
                         {JSON.stringify(controllerState.axes, null, 2)}
                         {JSON.stringify(controllerState.axes, null, 2)}
                     </pre>
-                </div>
+                </Box>
             }
 
-        </div>
+        </Box>
     )
 
 };

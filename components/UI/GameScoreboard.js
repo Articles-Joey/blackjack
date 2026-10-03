@@ -1,8 +1,20 @@
+"use client";
+
 import { useEffect, useState } from 'react'
 
 // import axios from 'axios'
 
-import Modal from 'react-bootstrap/Modal';
+import { format } from 'date-fns';
+import Box from '@mui/material/Box';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Typography from '@mui/material/Typography';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 // import { useHotkeys } from 'react-hotkeys-hook';
 
@@ -63,37 +75,29 @@ function Page({ game, reloadScoreboard, setReloadScoreboard }) {
     }, [reloadScoreboard])
 
     return (
-        <div className="scoreboard">
+        <Box>
 
-            <Modal show={showSettings} size={'md'} className="articles-modal" centered onHide={() => setShowSettings(false)}>
+            <Dialog open={showSettings} maxWidth="md" fullWidth aria-labelledby="scoreboard-settings-title" onClose={() => setShowSettings(false)}>
 
-                <Modal.Header>
-                    <Modal.Title>
-                        Scoreboard Settings
-                    </Modal.Title>
-                </Modal.Header>
+                <DialogTitle id="scoreboard-settings-title">Scoreboard Settings</DialogTitle>
 
-                <Modal.Body>
+                <DialogContent>
 
-                    <div
-                        className="d-flex justify-content-between align-items-center"
-                        onClick={() => setVisible(!visible)}
-                    >
+                    <FormControlLabel
+                        labelPlacement="start"
+                        sx={{ display: 'flex', justifyContent: 'space-between', m: 0 }}
+                        control={<ArticlesSwitch checked={visible} setChecked={setVisible} />}
+                        label={
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <EmojiEventsIcon fontSize="small" />
+                                <span>Join Scoreboard?</span>
+                            </Box>
+                        }
+                    />
 
-                        <div>
-                            <i className="fas fa-trophy-alt"></i>
-                            <span>Join Scoreboard?</span>
-                        </div>
+                </DialogContent>
 
-                        <ArticlesSwitch
-                            checked={visible}
-                        />
-
-                    </div>
-
-                </Modal.Body>
-
-                <Modal.Footer className="justify-content-between">
+                <DialogActions sx={{ justifyContent: 'space-between' }}>
 
                     <ArticlesButton
                         variant="articles"
@@ -111,82 +115,84 @@ function Page({ game, reloadScoreboard, setReloadScoreboard }) {
                         Save
                     </ArticlesButton> */}
 
-                </Modal.Footer>
+                </DialogActions>
 
-            </Modal>
+            </Dialog>
 
-            <div className="card card-articles card-sm mb-3 mb-lg-0">
+            <Box sx={{ bgcolor: 'game.card', border: '1px solid', borderColor: 'divider', borderRadius: '0.375rem', mb: '1rem', '@media (min-width: 992px)': { mb: 0 } }}>
 
-                <div className="card-header d-flex justify-content-between align-items-center">
+                <Box sx={{ p: '0.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid', borderColor: 'divider' }}>
 
                     <span>{game} Scoreboard</span>
 
                     <ArticlesButton
+                        aria-label="Refresh scoreboard"
                         onClick={() => {
                             scoreboardMutate()
                         }}
                         small
                     >
-                        <i className="fad fa-redo me-0"></i>
+                        <RefreshIcon fontSize="small" />
                     </ArticlesButton>
 
-                </div>
+                </Box>
 
-                <div className="card-body p-0">
+                <Box sx={{ p: 0 }}>
 
                     {(scoreboard?.length || 0) == 0 &&
-                        <div className="small p-2">No scores yet</div>
+                        <Box sx={{ p: '0.5rem', fontSize: '0.875em' }}>No scores yet</Box>
                     }
 
                     {scoreboard?.map((doc, i) =>
-                        <div key={doc._id} className="result d-flex flex-column justify-content-between border-bottom p-2">
+                        <Box key={doc._id} sx={{ p: '0.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderBottom: '1px solid', borderColor: 'divider' }}>
 
-                            <div className='d-flex justify-content-between lh-sm'>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', lineHeight: 1.25 }}>
 
-                                <div className='d-flex'>
+                                <Box sx={{ display: 'flex' }}>
 
-                                    <h5 className='mb-0 me-3'>{i + 1}</h5>
+                                    <Typography variant="h5" sx={{ m: 0, mr: '1rem', fontSize: '1.25rem', fontWeight: 500, lineHeight: 1.2 }}>{i + 1}</Typography>
 
-                                    <div className='lh-sm'>
+                                    <Box sx={{ lineHeight: 1.25 }}>
 
                                         <ViewUserModal
                                             populated_user={doc.populated_user}
                                             user_id={doc.user_id}
                                         />
 
-                                    </div>
+                                    </Box>
 
-                                </div>
+                                </Box>
 
-                                <div><h5 className="mb-0">{doc.score || doc.total}</h5></div>
+                                <Box><Typography variant="h5" sx={{ m: 0, fontSize: '1.25rem', fontWeight: 500, lineHeight: 1.2 }}>{doc.score || doc.total}</Typography></Box>
 
-                            </div>
+                            </Box>
 
-                            {(doc.last_play && doc.public_last_play) && <small className='mt-1' style={{ fontSize: '0.75rem' }}>Played: {format(new Date(doc.last_play), 'MM/d/yy hh:mmaa')}</small>}
+                            {(doc.last_play && doc.public_last_play) && <Box component="small" sx={{ mt: '0.25rem', fontSize: '0.75rem' }}>Played: {format(new Date(doc.last_play), 'MM/d/yy hh:mmaa')}</Box>}
 
-                        </div>
+                        </Box>
                     )}
 
-                </div>
+                </Box>
 
-                <div className="card-footer d-flex justify-content-between align-items-center">
+                <Box sx={{ p: '0.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid', borderColor: 'divider' }}>
 
-                    <div className='small'>Play to get on the board!</div>
+                    <Box sx={{ fontSize: '0.875em' }}>Play to get on the board!</Box>
 
                     <ArticlesButton
+                        aria-label="Scoreboard settings"
                         small
                         onClick={() => {
                             setShowSettings(true)
                         }}
                     >
-                        <i className="fad fa-cog me-0"></i>
+                        <SettingsIcon fontSize="small" />
                     </ArticlesButton>
 
-                </div>
+                </Box>
 
-            </div>
+            </Box>
 
-        </div>
+        </Box>
     )
 }
 

@@ -1,6 +1,5 @@
 "use client"
 import { lazy } from 'react'
-import Link from 'next/link'
 import Countdown from 'react-countdown';
 import { format, add, differenceInHours } from 'date-fns';
 
@@ -10,7 +9,12 @@ import useUserDetails from '@articles-media/articles-dev-box/useUserDetails';
 import useUserToken from '@articles-media/articles-dev-box/useUserToken';
 import GameMenuPrimaryButtonGroup from '@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup';
 
-import useFullscreen from '@articles-media/articles-dev-box/useFullscreen';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useStore } from '@/hooks/useStore';
 import { useGameState } from '@/hooks/useGameState';
 
@@ -19,18 +23,15 @@ const ReturnToLauncherButton = lazy(() => import('@articles-media/articles-dev-b
 
 export default function Sidebar() {
 
-    const darkMode = useStore((state) => state.darkMode);
 
     const { data: userToken } = useUserToken(process.env.NEXT_PUBLIC_GAME_PORT);
     const { data: userDetails } = useUserDetails({ token: userToken });
 
-    const { isFullscreen, requestFullscreen, exitFullscreen } = useFullscreen();
 
     const {
         leaderboard,
         lastClaim,
         publicScore,
-        wallet,
         claim,
         getWalletBalance,
         makePointsPublic,
@@ -40,53 +41,11 @@ export default function Sidebar() {
 
     function Buttons() {
         return (
-            <div>
+            <Box>
 
-                <div className='d-flex flex-wrap mb-3'>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: '1rem' }}>
 
-                    {/* {false && <>
-                        <div className='w-50 flex-shrink-0'>
-    
-                        </div>
-    
-                        <ArticlesButton
-                            className={`w-50 flex-shrink-0`}
-                            small
-                            onClick={() => {
-                                useStore.getState().setDarkMode(!darkMode);
-                            }}
-                        >
-                            <i className="fas fa-sun"></i>
-                            Dark Mode
-                        </ArticlesButton>
-    
-                        <Link href={'https://github.com/Articles-Joey/blackjack'} target='_blank' rel='noopener noreferrer' className='w-50'>
-                            <ArticlesButton
-                                className={`w-100`}
-                                small
-                                onClick={() => { }}
-                            >
-                                <i className="fab fa-github"></i>
-                                Github
-                            </ArticlesButton>
-                        </Link>
-    
-                        <ArticlesButton
-                            className={`w-50`}
-                            small
-                            active={isFullscreen}
-                            onClick={() => {
-                                if (!isFullscreen) {
-                                    requestFullscreen('fullscreen-root')
-                                } else {
-                                    exitFullscreen()
-                                }
-                            }}
-                        >
-                            <i className="fad fa-expand"></i>
-                            {isFullscreen ? 'Exit Full' : 'Fullscreen'}
-                        </ArticlesButton>
-                    </>} */}
+                    
 
                     <GameMenuPrimaryButtonGroup
                         useStore={useStore}
@@ -100,166 +59,190 @@ export default function Sidebar() {
                         type="Landing"
                     />
 
-                </div>
+                </Box>
 
-                <div className="extras">
+                <Box>
 
-                    <div className='SessionButton-wrapper'>
+                    <Box>
                         <SessionButton
                             port={process.env.NEXT_PUBLIC_GAME_PORT}
                             friendsButton={true}
                             enableTextfit={true}
                         />
-                    </div>
+                    </Box>
 
                     <ReturnToLauncherButton />
 
-                </div>
+                </Box>
 
-            </div>
+            </Box>
         )
     }
 
     return (
-        <div className="side-bar">
+        <Box sx={{
+            p: '0.5rem',
+            zIndex: 2,
+            '@media (min-width: 992px)': {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '300px',
+                minHeight: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+            },
+        }}>
 
             {userDetails &&
-                <div className="card card-articles card-sm mb-2">
+                <Box sx={{ bgcolor: 'game.card', border: '1px solid', borderColor: 'divider', borderRadius: '0.375rem', mb: '0.5rem' }}>
 
-                    <div className="card-header py-2 d-flex justify-content-between align-items-center">
+                    <Box sx={{ p: '0.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid', borderColor: 'divider' }}>
 
-                        <h6 className='mb-0'>Next Claim</h6>
+                        <Typography variant="subtitle1" sx={{ m: 0, fontSize: '1rem', fontWeight: 500, lineHeight: 1.2 }}>Next Claim</Typography>
 
-                        <div>
-                            <div className="badge bg-black shadow-articles me-1">
+                        <Box>
+                            <Box sx={{ display: 'inline-block', bgcolor: '#000', color: '#fff', fontSize: '0.75em', fontWeight: 700, px: '0.65em', py: '0.35em', borderRadius: '0.375rem', mr: '0.25rem', boxShadow: '0 0 0 1px rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.2)' }}>
                                 {lastClaim &&
                                     <Countdown
                                         daysInHours={true}
                                         date={add(new Date(lastClaim), { hours: 24 })}
                                     />
                                 }
-                            </div>
+                            </Box>
 
-                            <div
-                                className="badge bg-dark badge-hover shadow-articles"
+                            <IconButton aria-label="Refresh wallet balance"
+                                sx={{ bgcolor: '#212529', color: '#fff', p: '0.15rem', borderRadius: '0.375rem', boxShadow: '0 0 0 1px rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.2)', '&:hover': { bgcolor: '#000' } }}
                                 onClick={() => getWalletBalance()}
                             >
-                                <i className="fad fa-redo me-0"></i>
-                            </div>
-                        </div>
+                                <RefreshIcon fontSize="small" />
+                            </IconButton>
+                        </Box>
 
-                    </div>
+                    </Box>
 
-                    <div className="card-body p-2">
+                    <Box sx={{ p: '0.5rem' }}>
 
-                        <div><small>One claim per 24 hours</small></div>
+                        <Box><small>One claim per 24 hours</small></Box>
 
                         <ArticlesButton
                             disabled={differenceInHours(new Date(), new Date(lastClaim)) < 24 || !userDetails}
-                            className="mb-1 w-100"
+                            sx={{ mb: '0.25rem', width: '100%' }}
                             onClick={() => claim(userDetails)}
                         >
                             Claim 100 Points
                         </ArticlesButton>
 
-                        <div className='lh-sm'>
-                            {lastClaim && <div className='l'><small>Next claim {format(add(new Date(lastClaim), { hours: 24 }), 'MM/dd/yy hh:mmaa')}</small></div>}
-                        </div>
+                        <Box sx={{ lineHeight: 1.25 }}>
+                            {lastClaim && <Box><small>Next claim {format(add(new Date(lastClaim), { hours: 24 }), 'MM/dd/yy hh:mmaa')}</small></Box>}
+                        </Box>
 
-                    </div>
+                    </Box>
 
-                </div>
+                </Box>
             }
 
-            <div className="card card- mb-2">
+            <Box sx={{ bgcolor: 'game.card', border: '1px solid', borderColor: 'divider', borderRadius: '0.375rem', mb: '0.5rem' }}>
 
-                <div className="card-header py-2 d-flex justify-content-between align-items-center">
+                <Box sx={{ p: '0.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid', borderColor: 'divider' }}>
 
-                    <h6 className='mb-0'>Leaderboard</h6>
+                    <Typography variant="subtitle1" sx={{ m: 0, fontSize: '1rem', fontWeight: 500, lineHeight: 1.2 }}>Leaderboard</Typography>
 
-                    <div>
-                        <span className="badge bg-black shadow-articles me-1">
+                    <Box>
+                        <Box component="span" sx={{ display: 'inline-block', bgcolor: '#000', color: '#fff', fontSize: '0.75em', fontWeight: 700, px: '0.65em', py: '0.35em', borderRadius: '0.375rem', mr: '0.25rem', boxShadow: '0 0 0 1px rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.2)' }}>
                             Top 100
-                        </span>
+                        </Box>
 
-                        <span onClick={() => getLeaderboard()} className="badge bg-dark badge-hover shadow-articles">
-                            <i className='fad fa-redo me-0'></i>
-                        </span>
-                    </div>
+                        <IconButton aria-label="Refresh leaderboard" onClick={() => getLeaderboard()} sx={{ bgcolor: '#212529', color: '#fff', p: '0.15rem', borderRadius: '0.375rem', boxShadow: '0 0 0 1px rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.2)', '&:hover': { bgcolor: '#000' } }}>
+                            <RefreshIcon fontSize="small" />
+                        </IconButton>
+                    </Box>
 
-                </div>
+                </Box>
 
-                <div className="card-body p-0">
+                <Box sx={{ p: 0 }}>
 
-                    <div className='p-2'>
-                        {publicScore == true && <div>
+                    <Box sx={{ p: '0.5rem' }}>
+                        {publicScore == true && <Box>
 
-                            <ArticlesButton onClick={() => makePointsPrivate()} className="w-100 mb-2">Leave Leaderboard</ArticlesButton>
+                            <ArticlesButton onClick={() => makePointsPrivate()} sx={{ width: '100%', mb: '0.5rem' }}>Leave Leaderboard</ArticlesButton>
 
-                        </div>}
+                        </Box>}
 
                         {!publicScore &&
-                            <div>
+                            <Box>
                                 <ArticlesButton
                                     disabled={!userDetails}
                                     onClick={() => makePointsPublic()}
-                                    className="w-100 mb-2"
+                                    sx={{ width: '100%', mb: '0.5rem' }}
                                 >
                                     Join Leaderboard
                                 </ArticlesButton>
-                                <div className='mb-2 lh-sm'><small>Display name and wallet balance will be added to Leaderboard.</small></div>
-                            </div>}
-                    </div>
+                                <Box sx={{ mb: '0.5rem', lineHeight: 1.25 }}><small>Display name and wallet balance will be added to Leaderboard.</small></Box>
+                            </Box>}
+                    </Box>
 
-                    <div className='leaderboard-results'>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', '@media (min-width: 992px)': { gap: 0 } }}>
                         {leaderboard.map((doc, i) =>
-                            <div key={doc._id} className="result d-flex flex-column justify-content-between border-bottom py-1">
+                            <Box key={doc._id} sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                p: '0.25rem',
+                                width: '100%',
+                                border: '1px solid rgb(190,190,190)',
+                                '@media (min-width: 992px)': {
+                                    borderRight: 'none',
+                                    borderLeft: 'none',
+                                },
+                            }}>
 
-                                <div className='d-flex justify-content-between lh-sm'>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', lineHeight: 1.25 }}>
 
-                                    <div className='d-flex'>
+                                    <Box sx={{ display: 'flex' }}>
 
-                                        <h6 className='mb-0 me-1'>{i + 1}</h6>
+                                        <Typography variant="subtitle1" sx={{ m: 0, mr: '0.25rem', fontSize: '1rem', fontWeight: 500, lineHeight: 1.2 }}>{i + 1}</Typography>
 
-                                        <div className='lh-sm'>
+                                        <Box sx={{ lineHeight: 1.25 }}>
 
                                             <ViewUserModal
                                                 populated_user={doc.populated_user}
                                                 user_id={doc.user_id}
                                             />
 
-                                        </div>
+                                        </Box>
 
-                                    </div>
+                                    </Box>
 
-                                    <div><b>{doc.total}</b></div>
+                                    <Box><b>{doc.total}</b></Box>
 
-                                </div>
+                                </Box>
 
-                                {(doc.last_play) && <small className='mt-1' style={{ fontSize: '0.75rem' }}>Played: {format(new Date(doc.last_play), 'MM/d/yy hh:mmaa')}</small>}
+                                {(doc.last_play) && <Box component="small" sx={{ mt: '0.25rem', fontSize: '0.75rem' }}>Played: {format(new Date(doc.last_play), 'MM/d/yy hh:mmaa')}</Box>}
 
-                            </div>
+                            </Box>
                         )}
-                    </div>
+                    </Box>
 
-                </div>
+                </Box>
 
-                <div className="card-footer d-flex justify-content-between align-items-center">
-                    <span className='small'>Page: <b>1 of 1</b></span>
-                    <span>
-                        <ArticlesButton disabled small className="">
-                            <i className="fad fa-caret-left fa-lg me-0"></i>
+                <Box sx={{ p: '0.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid', borderColor: 'divider' }}>
+                    <Box component="span" sx={{ fontSize: '0.875em' }}>Page: <b>1 of 1</b></Box>
+                    <Box component="span">
+                        <ArticlesButton disabled small aria-label="Previous leaderboard page">
+                            <ArrowLeftIcon />
                         </ArticlesButton>
-                        <ArticlesButton disabled small className="ms-1">
-                            <i className="fad fa-caret-right fa-lg me-0"></i>
+                        <ArticlesButton disabled small aria-label="Next leaderboard page" sx={{ ml: '0.25rem' }}>
+                            <ArrowRightIcon />
                         </ArticlesButton>
-                    </span>
-                </div>
+                    </Box>
+                </Box>
 
-            </div>
+            </Box>
 
             <Buttons />
 
-        </div>
+        </Box>
     )
 }

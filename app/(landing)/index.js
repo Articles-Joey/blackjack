@@ -1,7 +1,10 @@
 "use client"
-import { useEffect, lazy } from 'react'
+import { Suspense, useEffect, lazy } from 'react'
 
 import { differenceInHours } from 'date-fns';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 
 const Ad = lazy(() => import('@articles-media/articles-dev-box/Ad'));
 // import Ad from '@articles-media/articles-dev-box/Ad';
@@ -87,25 +90,66 @@ export default function BlackjackPage() {
     }
 
     return (
-        <div className='blackjack-page' id='fullscreen-root'>
+        <Box sx={(theme) => ({
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                bgcolor: theme.palette.mode === 'dark' ? '#000' : '#fff',
+                '@media (min-width: 992px)': {
+                    minHeight: '100vh',
+                    pb: 0,
+                    flexDirection: 'row',
+                },
+                '& .ad-wrap': {
+                    mx: 'auto',
+                    '@media (min-width: 992px)': {
+                        position: 'absolute',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        right: '1rem',
+                    },
+                },
+            })} id='fullscreen-root'>
 
             <AudioHandler />
 
-            <img
-                className="background"
+            <Box
+                component="img"
                 src={`${process.env.NEXT_PUBLIC_CDN}games/Blackjack/background-small.jpg`}
-            ></img>
+                alt=""
+                sx={(theme) => ({
+                    position: 'fixed',
+                    top: 0,
+                    opacity: theme.palette.mode === 'dark' ? 0.2 : 0.5,
+                    height: '100vh',
+                    width: '100%',
+                    objectFit: 'cover',
+                    zIndex: 0,
+                })}
+            />
 
             <Sidebar />
 
-            <div className='game'>
+            <Box sx={{
+                p: '3rem 1rem',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%',
+                minWidth: 0,
+                zIndex: 1,
+                '@media (min-width: 992px)': {
+                    mx: 'calc(250px + 1rem)',
+                },
+            }}>
 
-                <img className='mb-1' src="/img/icon.png" height={100} alt="" />
+                <Box component="img" src="/img/icon.png" height={100} alt="" sx={{ mb: '0.25rem' }} />
 
                 {!userDetails?.user_id ?
-                    <div>
-                        <h4 className='mb-3 mt-2'>Please login to play</h4>
-                        <div className='d-flex justify-content-center mb-4'>
+                    <Box>
+                        <Typography variant="h4" sx={{ mb: '1rem', mt: '0.5rem', fontSize: '1.5rem' }}>Please login to play</Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', mb: '1.5rem' }}>
 
                             {/* <ArticlesButton
                                 onClick={() => {
@@ -120,42 +164,50 @@ export default function BlackjackPage() {
                                 size="lg"
                             />
 
-                        </div>
-                    </div>
+                        </Box>
+                    </Box>
                     :
                     <>
-                        <div className="buttons mb-2">
+                        <Box sx={{ mb: '0.5rem' }}>
                             {currentBet &&
                                 <>
-                                    <ArticlesButton small disabled={differenceInHours(new Date(), new Date(lastClaim)) < 24} className='me-4' onClick={() => { startNewGame() }}>New Game</ArticlesButton>
-                                    <ArticlesButton small className='' onClick={() => { hit() }}>Hit</ArticlesButton>
-                                    <ArticlesButton small className='' onClick={() => { stand(userDetails) }}>Stand</ArticlesButton>
+                                    <ArticlesButton small disabled={differenceInHours(new Date(), new Date(lastClaim)) < 24} sx={{ mr: '1.5rem' }} onClick={() => { startNewGame() }}>New Game</ArticlesButton>
+                                    <ArticlesButton small onClick={() => { hit() }}>Hit</ArticlesButton>
+                                    <ArticlesButton small onClick={() => { stand(userDetails) }}>Stand</ArticlesButton>
                                 </>
                             }
-                        </div>
+                        </Box>
 
-                        <p className='mb-2'>Points: <b>{wallet}</b></p>
+                        <Typography sx={{ mb: '0.5rem' }}>Points: <b>{wallet}</b></Typography>
 
                         {
                             !currentBet ?
-                                <div className="input-bet d-flex justify-content-center flex-column mb-3">
+                                <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', mb: '1rem' }}>
 
-                                    <div className='d-flex align-items-center  mb-2'>
-                                        <div className='me-2'>
-                                            <ArticlesButton className='' onClick={() => { setInputValue(1) }}>1</ArticlesButton>
-                                            <ArticlesButton className='' onClick={() => { setInputValue(5) }}>5</ArticlesButton>
-                                            <ArticlesButton className='' onClick={() => { setInputValue(20) }}>20</ArticlesButton>
-                                            <ArticlesButton className='' onClick={() => { setInputValue(50) }}>50</ArticlesButton>
-                                            <ArticlesButton className='' onClick={() => { setInputValue(100) }}>100</ArticlesButton>
-                                        </div>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', mb: '0.5rem' }}>
+                                        <Box sx={{ mr: '0.5rem' }}>
+                                            <ArticlesButton onClick={() => { setInputValue(1) }}>1</ArticlesButton>
+                                            <ArticlesButton onClick={() => { setInputValue(5) }}>5</ArticlesButton>
+                                            <ArticlesButton onClick={() => { setInputValue(20) }}>20</ArticlesButton>
+                                            <ArticlesButton onClick={() => { setInputValue(50) }}>50</ArticlesButton>
+                                            <ArticlesButton onClick={() => { setInputValue(100) }}>100</ArticlesButton>
+                                        </Box>
 
-                                        <form>
-                                            <input style={{ width: '100px' }} className='form-control' type="text" name="bet" placeholder="" value={inputValue} onChange={e => setInputValue(parseInt(e.target.value))} />
-                                        </form>
-                                    </div>
+                                        <Box component="form" onSubmit={event => event.preventDefault()}>
+                                            <TextField
+                                                size="small"
+                                                type="text"
+                                                name="bet"
+                                                value={Number.isNaN(inputValue) ? '' : inputValue}
+                                                onChange={e => setInputValue(parseInt(e.target.value))}
+                                                slotProps={{ htmlInput: { 'aria-label': 'Bet amount', inputMode: 'numeric' } }}
+                                                sx={{ width: '100px' }}
+                                            />
+                                        </Box>
+                                    </Box>
 
                                     <ArticlesButton
-                                        className=''
+                                        
                                         small
                                         onClick={() => { 
                                             useAudioStore.getState().playCardSound()
@@ -165,32 +217,32 @@ export default function BlackjackPage() {
                                         Place Bet
                                     </ArticlesButton>
 
-                                </div>
+                                </Box>
                                 : null
                         }
 
                         {
                             gameOver ?
-                                <div className="buttons">
+                                <Box>
                                     <ArticlesButton
                                         small
-                                        className=''
+                                        
                                         onClick={() => { startNewGame('continue') }}
                                     >
                                         Continue
                                     </ArticlesButton>
-                                </div>
+                                </Box>
                                 : null
                         }
 
                         {currentBet &&
-                            <div className='container'>
-                                <div className='d-flex flex-column align-items-center w-100'>
+                            <Box sx={{ width: '100%', px: '0.75rem', mx: 'auto', overflowX: 'auto' }}>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
 
-                                    <div className='d-flex flex-column align-items-center'>
-                                        <p className='mb-0 mt-3'>Your Hand ({player.count})</p>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <Typography sx={{ mb: 0, mt: '1rem' }}>Your Hand ({player.count})</Typography>
 
-                                        <table className="cards">
+                                        <Box component="table" sx={{ borderCollapse: 'collapse' }}>
                                             <tbody>
                                                 <tr>
                                                     {player.cards.map((card, i) => {
@@ -198,12 +250,12 @@ export default function BlackjackPage() {
                                                     })}
                                                 </tr>
                                             </tbody>
-                                        </table>
-                                    </div>
+                                        </Box>
+                                    </Box>
 
-                                    <div className='d-flex flex-column align-items-center'>
-                                        <p className='mb-0 mt-3'>{`Dealer's Hand`} ({dealer.count})</p>
-                                        <table className="cards">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <Typography sx={{ mb: 0, mt: '1rem' }}>{`Dealer's Hand`} ({dealer.count})</Typography>
+                                        <Box component="table" sx={{ borderCollapse: 'collapse' }}>
                                             <tbody>
                                                 <tr>
                                                     {dealer.cards.map((card, i) => {
@@ -211,43 +263,60 @@ export default function BlackjackPage() {
                                                     })}
                                                 </tr>
                                             </tbody>
-                                        </table>
-                                    </div>
+                                        </Box>
+                                    </Box>
 
-                                </div>
-                            </div>
+                                </Box>
+                            </Box>
                         }
 
-                        <p>{message}</p>
+                        <Typography sx={{ mb: '1rem' }}>{message}</Typography>
 
                     </>}
 
-            </div>
+            </Box>
 
-            <Ad
-                style="Default"
-                section={"Games"}
-                section_id={process.env.NEXT_PUBLIC_GAME_NAME}
-                darkMode={darkMode ? true : false}
-                user_ad_token={userToken}
-                userDetails={userDetails}
-                userDetailsLoading={userDetailsLoading}
-            />
+            <Suspense>
+                <Ad
+                    style="Default"
+                    section={"Games"}
+                    section_id={process.env.NEXT_PUBLIC_GAME_NAME}
+                    darkMode={darkMode ? true : false}
+                    user_ad_token={userToken}
+                    userDetails={userDetails}
+                    userDetailsLoading={userDetailsLoading}
+                />
+            </Suspense>
 
-        </div>
+        </Box>
     );
 
 };
 
 const Card = ({ number, suit }) => {
     const combo = (number) ? `${number}${suit}` : null;
-    const color = (suit === '♦' || suit === '♥') ? 'card-red' : '';
 
     return (
         <td>
-            <div className={`blackjack-card card ${color}`}>
+            <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100px',
+                width: '66px',
+                fontSize: '1.5rem',
+                bgcolor: 'game.card',
+                color: suit === '♦' || suit === '♥' ? 'red' : 'text.primary',
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: '0.375rem',
+                '@media (min-width: 992px)': {
+                    height: '150px',
+                    width: '100px',
+                },
+            }}>
                 {combo}
-            </div>
+            </Box>
         </td>
     );
 };
