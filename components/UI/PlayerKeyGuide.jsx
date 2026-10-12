@@ -23,6 +23,7 @@ export default function PlayerKeyGuide() {
           ]
         : [
               ["WASD", "Move / strafe"],
+              ["Space", "Jump"],
               ["Mouse", "Look"],
               ["E", "Sit near your seat"],
               ["Esc", "Free cursor"],

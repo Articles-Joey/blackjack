@@ -12,9 +12,9 @@ import {
     findSeat,
     seatPose,
     seatExit,
-    canWalkAt,
     FLOOR_Y,
 } from "@/components/Game/playerSeats";
+import { isAirborne, PLAYER_ANIMATIONS } from "@/components/Game/playerJump";
 
 const PREFIX = "articles-blackjack-v1-";
 const cleanName = (value) =>
@@ -251,6 +251,10 @@ function handleAction(id, data) {
                     reject(id, "Move closer to your chair or a free barstool.");
                     break;
                 }
+                if (isAirborne(player.pose)) {
+                    reject(id, "Land before sitting down.");
+                    break;
+                }
                 patchPlayer(id, { pose: seatPose(seat), message: "" });
             }
             break;
@@ -275,19 +279,39 @@ function handlePose(id, pose) {
         !Number.isFinite(pose.rotation)
     )
         return;
-    const [x, , z] = pose.position;
-    if (!canWalkAt(x, z)) return;
+    const [x, y, z] = pose.position;
+    // Clients simulate Rapier contacts. Validate the room envelope here rather
+    // than old floor-only footprints, which reject jumping onto furniture.
+    if (
+        Math.abs(x) > 14 ||
+        Math.abs(z) > 14 ||
+        y < FLOOR_Y - 0.2 ||
+        y > FLOOR_Y + 12
+    )
+        return;
+    const grounded = pose.grounded === true;
+    const airborne = !grounded;
+    let animation = Object.hasOwn(PLAYER_ANIMATIONS, pose.animation)
+        ? pose.animation
+        : "idle";
+    if (airborne && animation !== "jumpStart" && animation !== "jumpLoop")
+        animation = "jumpLoop";
     const safePose = {
-        position: [x, FLOOR_Y, z],
+        position: [x, Math.max(FLOOR_Y, y), z],
         rotation: pose.rotation % (Math.PI * 2),
         seated: null,
-        animation: pose.animation === "walk" ? "walk" : "idle",
+        animation,
+        locomotion: pose.locomotion === "walk" ? "walk" : "idle",
+        grounded,
     };
     if (
         player.pose.position[0] === x &&
+        player.pose.position[1] === safePose.position[1] &&
         player.pose.position[2] === z &&
         player.pose.rotation === safePose.rotation &&
-        player.pose.animation === safePose.animation
+        player.pose.animation === safePose.animation &&
+        player.pose.locomotion === safePose.locomotion &&
+        player.pose.grounded === safePose.grounded
     )
         return;
     patchPlayer(id, { pose: safePose });

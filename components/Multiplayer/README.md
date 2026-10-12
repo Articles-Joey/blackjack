@@ -19,6 +19,7 @@ reconnection to an old wallet are not implemented.
 ## Controls
 
 - WASD / arrow keys: camera-relative walking and strafing.
+- Space: jump while standing with pointer lock (release and press again for another jump).
 - Mouse: look while standing with pointer lock.
 - V: first / third person.
 - E: stand up, or sit near your assigned table chair or an available barstool.
@@ -28,8 +29,22 @@ reconnection to an old wallet are not implemented.
 
 Player Mode can be disabled to use the existing orbit camera. The UAL model is
 copied from usa-tycoon's optimized `UAL1_Standard-transformed.glb`; `Player.jsx`
-clones its skeleton and uses `Idle_Loop`, `Walk_Loop`, and sitting animation 30.
+clones its skeleton and uses `Idle_Loop`, `Walk_Loop`, `Jump_Start`, `Jump_Loop`,
+`Jump_Land`, and sitting animation 30. Jump takeoff and landing are one-shot
+animations; the airborne clip loops, and walking blends through the landing.
 The same Player and Dealer render in the Online and Offline 3D scenes.
+
+The 3D room runs inside Rapier Physics. Furniture and room boundaries use fixed
+rigid bodies, and the local player uses an upright dynamic capsule. Rapier handles
+gravity, wall sliding, furniture contact and landing; jump animations retain the
+reference controller's 0.2-second grounded cooldown. Seated players disable their
+capsule until standing. Esc and disabling Player Mode stop input while gravity
+continues. Leaving 3D preserves the last pose until the simulation mounts again.
+The bar uses separate mesh colliders to keep the bartender aisle open. Furniture
+positions are unchanged. `useStore.debug` toggles the physics collider overlay.
+Multiplayer replicates resolved position, grounded state and animation; remote
+avatars are visual replicas, without a second physical simulation. The host
+validates the room bounds and seat permissions, not client physics contacts.
 
 ## Implementation
 

@@ -45,7 +45,7 @@ export default function CameraDistanceIndicator() {
         visible && enabled && thirdPerson && hasCanvas && !screenshotMode;
 
     const percent =
-        ((distance - THIRD_PERSON_MIN_DISTANCE) /
+        ((THIRD_PERSON_MAX_DISTANCE - distance) /
             (THIRD_PERSON_MAX_DISTANCE - THIRD_PERSON_MIN_DISTANCE)) *
         100;
 
@@ -81,15 +81,15 @@ export default function CameraDistanceIndicator() {
             }}
         >
             <Typography variant="caption">
-                Max {THIRD_PERSON_MAX_DISTANCE.toFixed(1)}
+                Min {THIRD_PERSON_MIN_DISTANCE.toFixed(1)}
             </Typography>
             <Box
                 role="progressbar"
-                aria-label="Third person camera distance"
-                aria-valuemin={THIRD_PERSON_MIN_DISTANCE}
-                aria-valuemax={THIRD_PERSON_MAX_DISTANCE}
-                aria-valuenow={distance}
-                aria-valuetext={distance.toFixed(1)}
+                aria-label="Third person camera zoom"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={percent}
+                aria-valuetext={`Camera distance ${distance.toFixed(1)}`}
                 sx={{
                     position: "relative",
                     width: 8,
@@ -123,7 +123,7 @@ export default function CameraDistanceIndicator() {
                 />
             </Box>
             <Typography variant="caption">
-                Min {THIRD_PERSON_MIN_DISTANCE.toFixed(1)}
+                Max {THIRD_PERSON_MAX_DISTANCE.toFixed(1)}
             </Typography>
             <Typography
                 variant="body2"

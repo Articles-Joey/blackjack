@@ -1,6 +1,8 @@
 "use client";
 
-import { Component, useMemo } from "react";
+import { Component, Suspense, useMemo } from "react";
+import { Physics } from "@react-three/rapier";
+import { JUMP_GRAVITY } from "./playerJump";
 import { Canvas } from "@react-three/fiber";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -36,6 +38,7 @@ export default function GameCanvas({
     multiplayer = false,
 }) {
     const showStats = useStore((state) => state?.debugConfig?.showStats);
+    const debug = useStore((state) => state.debug);
     const theme = useTheme();
     const cardAppearance = useMemo(() => getCardAppearance(theme), [theme]);
     const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
@@ -115,14 +118,23 @@ export default function GameCanvas({
                         {showCardFaces ? (
                             <CardFacePreview cardAppearance={cardAppearance} />
                         ) : (
-                            <GameScene
-                                player={player}
-                                dealer={dealer}
-                                currentBet={currentBet}
-                                reducedMotion={reducedMotion}
-                                cardAppearance={cardAppearance}
-                                multiplayer={multiplayer}
-                            />
+                            <Suspense fallback={null}>
+                                <Physics
+                                    debug={debug ? true : false}
+                                    gravity={[0, -JUMP_GRAVITY, 0]}
+                                    timeStep={1 / 60}
+                                    updatePriority={-1}
+                                >
+                                    <GameScene
+                                        player={player}
+                                        dealer={dealer}
+                                        currentBet={currentBet}
+                                        reducedMotion={reducedMotion}
+                                        cardAppearance={cardAppearance}
+                                        multiplayer={multiplayer}
+                                    />
+                                </Physics>
+                            </Suspense>
                         )}
                     </Canvas>
                 </CanvasErrorBoundary>

@@ -1,11 +1,18 @@
 "use client";
 
+import {
+    CuboidCollider,
+    CylinderCollider,
+    RigidBody,
+} from "@react-three/rapier";
+
 import { useRoomTextures } from "./RoomMaterials";
 import WoodBox from "./WoodBox";
 import RoomBar from "./RoomBar";
 import ChairSeatCushion, { CushionMaterial } from "./ChairSeatCushion";
 import WoodStove from "./WoodStove";
 import FirewoodRack from "./FirewoodRack";
+import BoundsRigidBody from "./BoundsRigidBody";
 import Jukebox from "./Jukebox";
 import FramedArt from "./FramedArt";
 import CaseClock from "./CaseClock";
@@ -24,10 +31,16 @@ function RoomWall({ position, rotation, wood, wallpaper }) {
     const panelCount = 20;
     const panelWidth = ROOM_WIDTH / panelCount;
     return (
-        <group
+        <RigidBody
+            type="fixed"
+            colliders={false}
             position={position}
             rotation={[0, rotation, 0]}
         >
+            <CuboidCollider
+                args={[ROOM_WIDTH / 2, ROOM_HEIGHT / 2, 0.19]}
+                position={[0, ROOM_HEIGHT / 2, 0.04]}
+            />
             <mesh
                 position={[0, ROOM_HEIGHT / 2, -0.05]}
                 receiveShadow
@@ -110,7 +123,7 @@ function RoomWall({ position, rotation, wood, wallpaper }) {
                 texture={wood}
                 color="#edcca0"
             />
-        </group>
+        </RigidBody>
     );
 }
 
@@ -129,7 +142,9 @@ function LowPolyChair({
         bumpScale: 0.006,
     };
     return (
-        <group
+        <RigidBody
+            type="fixed"
+            colliders="hull"
             position={position}
             rotation={[0, rotation, 0]}
             scale={scale}
@@ -206,7 +221,7 @@ function LowPolyChair({
                     polygonOffset
                 />
             </mesh>
-        </group>
+        </RigidBody>
     );
 }
 
@@ -224,30 +239,46 @@ export default function GameRoom({ reducedMotion = false }) {
 
     return (
         <>
-            <mesh
-                position={[0, ROOM_FLOOR_Y - 0.05, 0]}
-                receiveShadow
+            <RigidBody
+                type="fixed"
+                colliders="cuboid"
+                name="room-floor"
             >
-                <boxGeometry args={[ROOM_WIDTH, 0.1, ROOM_WIDTH]} />
-                <meshStandardMaterial
-                    key={carpet?.uuid ?? "plain"}
-                    map={carpet}
-                    bumpMap={carpet}
-                    bumpScale={0.05}
-                    color={carpet ? "#ffffff" : "#24392d"}
-                    roughness={1}
-                />
-            </mesh>
-            <mesh
-                position={[0, ROOM_FLOOR_Y + ROOM_HEIGHT, 0]}
-                rotation={[Math.PI / 2, 0, 0]}
+                <mesh
+                    position={[0, ROOM_FLOOR_Y - 0.05, 0]}
+                    receiveShadow
+                >
+                    <boxGeometry args={[ROOM_WIDTH, 0.1, ROOM_WIDTH]} />
+                    <meshStandardMaterial
+                        key={carpet?.uuid ?? "plain"}
+                        map={carpet}
+                        bumpMap={carpet}
+                        bumpScale={0.05}
+                        color={carpet ? "#ffffff" : "#24392d"}
+                        roughness={1}
+                    />
+                </mesh>
+            </RigidBody>
+            <RigidBody
+                type="fixed"
+                colliders={false}
+                name="room-ceiling"
             >
-                <planeGeometry args={[ROOM_WIDTH, ROOM_WIDTH]} />
-                <meshStandardMaterial
-                    color="#d3c5aa"
-                    roughness={1}
+                <CuboidCollider
+                    args={[halfWidth, 0.05, halfWidth]}
+                    position={[0, ROOM_FLOOR_Y + ROOM_HEIGHT + 0.05, 0]}
                 />
-            </mesh>
+                <mesh
+                    position={[0, ROOM_FLOOR_Y + ROOM_HEIGHT, 0]}
+                    rotation={[Math.PI / 2, 0, 0]}
+                >
+                    <planeGeometry args={[ROOM_WIDTH, ROOM_WIDTH]} />
+                    <meshStandardMaterial
+                        color="#d3c5aa"
+                        roughness={1}
+                    />
+                </mesh>
+            </RigidBody>
 
             <RoomWall
                 position={[0, ROOM_FLOOR_Y, -halfWidth]}
@@ -311,48 +342,92 @@ export default function GameRoom({ reducedMotion = false }) {
                 wood={chairWood}
             />
 
-            <mesh
-                position={[
-                    halfWidth - 2.3,
-                    ROOM_FLOOR_Y + HEARTH_HEIGHT / 2,
-                    -halfWidth + 2.3,
-                ]}
-                receiveShadow
+            <RigidBody
+                type="fixed"
+                colliders="cuboid"
+                name="stove-hearth"
             >
-                <boxGeometry args={[4, HEARTH_HEIGHT, 4]} />
-                <meshStandardMaterial
-                    color="#494642"
-                    roughness={0.95}
+                <mesh
+                    position={[
+                        halfWidth - 2.3,
+                        ROOM_FLOOR_Y + HEARTH_HEIGHT / 2,
+                        -halfWidth + 2.3,
+                    ]}
+                    receiveShadow
+                >
+                    <boxGeometry args={[4, HEARTH_HEIGHT, 4]} />
+                    <meshStandardMaterial
+                        color="#494642"
+                        roughness={0.95}
+                    />
+                </mesh>
+            </RigidBody>
+            {/* Solid stove and flue only: flames and smoke have no colliders. */}
+            <RigidBody
+                type="fixed"
+                colliders={false}
+                name="stove"
+            >
+                <CylinderCollider
+                    args={[0.37 * STOVE_SCALE, 0.26 * STOVE_SCALE]}
+                    position={[
+                        halfWidth - 2.3,
+                        ROOM_FLOOR_Y + HEARTH_HEIGHT + 0.37 * STOVE_SCALE,
+                        -halfWidth + 2.3,
+                    ]}
                 />
-            </mesh>
-            <WoodStove
-                name="back-right-wood-stove"
-                position={[
-                    halfWidth - 2.3,
-                    ROOM_FLOOR_Y + HEARTH_HEIGHT,
-                    -halfWidth + 2.3,
-                ]}
-                rotation={[0, -Math.PI / 4, 0]}
-                scale={STOVE_SCALE}
-                pipeTop={(ROOM_HEIGHT - HEARTH_HEIGHT + 0.12) / STOVE_SCALE}
-                smoke={false}
-                reducedMotion={reducedMotion}
-            />
-            <FirewoodRack
-                position={[halfWidth - 6.8, ROOM_FLOOR_Y, -halfWidth + 1.5]}
-                rotation={[0, Math.PI / 16, 0]}
-            />
+                <CylinderCollider
+                    args={[
+                        (ROOM_HEIGHT - HEARTH_HEIGHT - 0.74 * STOVE_SCALE) / 2,
+                        0.075 * STOVE_SCALE,
+                    ]}
+                    position={[
+                        halfWidth - 2.3,
+                        ROOM_FLOOR_Y +
+                            (HEARTH_HEIGHT + 0.74 * STOVE_SCALE + ROOM_HEIGHT) /
+                                2,
+                        -halfWidth + 2.3,
+                    ]}
+                />
+                <WoodStove
+                    name="back-right-wood-stove"
+                    position={[
+                        halfWidth - 2.3,
+                        ROOM_FLOOR_Y + HEARTH_HEIGHT,
+                        -halfWidth + 2.3,
+                    ]}
+                    rotation={[0, -Math.PI / 4, 0]}
+                    scale={STOVE_SCALE}
+                    pipeTop={(ROOM_HEIGHT - HEARTH_HEIGHT + 0.12) / STOVE_SCALE}
+                    smoke={false}
+                    reducedMotion={reducedMotion}
+                />
+            </RigidBody>
+            <BoundsRigidBody name="firewood-rack">
+                <FirewoodRack
+                    position={[halfWidth - 6.8, ROOM_FLOOR_Y, -halfWidth + 1.5]}
+                    rotation={[0, Math.PI / 16, 0]}
+                />
+            </BoundsRigidBody>
 
-            <Jukebox
-                position={[halfWidth - 1.4, ROOM_FLOOR_Y, -halfWidth + 11]}
-                rotation={[0, -Math.PI / 2, 0]}
-                scale={1.35}
-            />
-            <CaseClock
-                position={[halfWidth - 1.4, ROOM_FLOOR_Y, -halfWidth + 14.3]}
-                rotation={[0, -Math.PI / 2, 0]}
-                reducedMotion={reducedMotion}
-            />
+            <BoundsRigidBody name="jukebox">
+                <Jukebox
+                    position={[halfWidth - 1.4, ROOM_FLOOR_Y, -halfWidth + 11]}
+                    rotation={[0, -Math.PI / 2, 0]}
+                    scale={1.35}
+                />
+            </BoundsRigidBody>
+            <BoundsRigidBody name="case-clock">
+                <CaseClock
+                    position={[
+                        halfWidth - 1.4,
+                        ROOM_FLOOR_Y,
+                        -halfWidth + 14.3,
+                    ]}
+                    rotation={[0, -Math.PI / 2, 0]}
+                    reducedMotion={reducedMotion}
+                />
+            </BoundsRigidBody>
 
             {TABLE_SEATS.map((seat) => (
                 <LowPolyChair
@@ -366,53 +441,59 @@ export default function GameRoom({ reducedMotion = false }) {
                 />
             ))}
 
-            {[-2.8, 2.8].flatMap((x) =>
-                [-1.6, 1.6].map((z) => (
-                    <group key={`${x}-${z}`}>
-                        <mesh
-                            position={[x, -1.55, z]}
-                            castShadow
-                            receiveShadow
-                        >
-                            <cylinderGeometry args={[0.2, 0.15, 2.5, 8]} />
-                            <meshStandardMaterial
-                                key={wood?.uuid ?? "plain"}
-                                map={wood}
-                                color="#c29d75"
-                                roughness={0.7}
-                                flatShading
-                            />
-                        </mesh>
-                        <mesh
-                            position={[x, ROOM_FLOOR_Y + 0.1, z]}
-                            castShadow
-                        >
-                            <cylinderGeometry args={[0.17, 0.18, 0.2, 8]} />
-                            <meshStandardMaterial
-                                color="#a28650"
-                                metalness={0.5}
-                                roughness={0.5}
-                                flatShading
-                            />
-                        </mesh>
-                    </group>
-                )),
-            )}
-            <WoodBox
-                position={[0, -1.85, 0]}
-                size={[5.7, 0.16, 0.2]}
-                texture={wood}
-                castShadow
-            />
-            {[-2.8, 2.8].map((x) => (
+            <RigidBody
+                type="fixed"
+                colliders="hull"
+                name="table-legs-and-braces"
+            >
+                {[-2.8, 2.8].flatMap((x) =>
+                    [-1.6, 1.6].map((z) => (
+                        <group key={`${x}-${z}`}>
+                            <mesh
+                                position={[x, -1.55, z]}
+                                castShadow
+                                receiveShadow
+                            >
+                                <cylinderGeometry args={[0.2, 0.15, 2.5, 8]} />
+                                <meshStandardMaterial
+                                    key={wood?.uuid ?? "plain"}
+                                    map={wood}
+                                    color="#c29d75"
+                                    roughness={0.7}
+                                    flatShading
+                                />
+                            </mesh>
+                            <mesh
+                                position={[x, ROOM_FLOOR_Y + 0.1, z]}
+                                castShadow
+                            >
+                                <cylinderGeometry args={[0.17, 0.18, 0.2, 8]} />
+                                <meshStandardMaterial
+                                    color="#a28650"
+                                    metalness={0.5}
+                                    roughness={0.5}
+                                    flatShading
+                                />
+                            </mesh>
+                        </group>
+                    )),
+                )}
                 <WoodBox
-                    key={x}
-                    position={[x, -1.85, 0]}
-                    size={[0.16, 0.16, 3.3]}
+                    position={[0, -1.85, 0]}
+                    size={[5.7, 0.16, 0.2]}
                     texture={wood}
                     castShadow
                 />
-            ))}
+                {[-2.8, 2.8].map((x) => (
+                    <WoodBox
+                        key={x}
+                        position={[x, -1.85, 0]}
+                        size={[0.16, 0.16, 3.3]}
+                        texture={wood}
+                        castShadow
+                    />
+                ))}
+            </RigidBody>
         </>
     );
 }

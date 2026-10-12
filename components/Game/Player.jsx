@@ -4,23 +4,26 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Billboard, Text, useAnimations, useGLTF } from "@react-three/drei";
 import { SkeletonUtils } from "three-stdlib";
-import { Box3, LoopRepeat, Vector3 } from "three";
+import { Box3, LoopOnce, LoopRepeat, Vector3 } from "three";
 import { findSeat, PLAYER_HEIGHT, PLAYER_SCALE } from "./playerSeats";
+import { PLAYER_ANIMATIONS } from "./playerJump";
 
 const MODEL_URL = "/models/Characters/UAL1_Standard.glb";
 
 // Adapted from usa-tycoon's UAL controller: shared GLTF, independent skeletons
-// and animation mixers, Walk_Loop/Idle_Loop and sitting clip index 30.
+// and animation mixers, UAL locomotion/jump clips and sitting clip index 30.
 export default function Player({
     pose,
     nickname = "Player",
     local = false,
     visible = true,
+    onAnimationFinished,
 }) {
     const { scene, animations } = useGLTF(MODEL_URL);
     const group = useRef();
     const visual = useRef();
     const positioned = useRef(false);
+    const finishedCallback = useRef(onAnimationFinished);
     const point = useMemo(() => new Vector3(), []);
     const target = useMemo(() => new Vector3(), []);
     const model = useMemo(() => {
@@ -38,20 +41,59 @@ export default function Player({
         const scale = PLAYER_HEIGHT / Math.max(box.max.y - box.min.y, 0.01);
         return { clone, hips, scale, base: -box.min.y * scale };
     }, [scene]);
-    const { actions } = useAnimations(animations, model.clone);
+    const { actions, mixer } = useAnimations(animations, model.clone);
     const seat = findSeat(pose.seated);
     const clip = seat
         ? animations[30]?.name
-        : pose.animation === "walk"
-          ? "Walk_Loop"
-          : "Idle_Loop";
+        : (PLAYER_ANIMATIONS[pose.animation] ?? "Idle_Loop");
 
+    useEffect(() => {
+        finishedCallback.current = onAnimationFinished;
+    }, [onAnimationFinished]);
+
+    // AnimationAction is an imperative Three.js object, as in the source UAL model.
+    /* eslint-disable react-hooks/immutability */
     useEffect(() => {
         const action = actions[clip];
         if (!action) return;
-        action.reset().setLoop(LoopRepeat, Infinity).fadeIn(0.18).play();
-        return () => action.fadeOut(0.18);
-    }, [actions, clip]);
+        const oneShot = clip === "Jump_Start" || clip === "Jump_Land";
+        // Keep the walk cycle's time when leaving the blended landing pose.
+        if (!oneShot && action.isRunning() && action.getEffectiveWeight() > 0) {
+            action.stopFading().setEffectiveTimeScale(1).setEffectiveWeight(1);
+        } else {
+            action
+                .reset()
+                .setEffectiveTimeScale(1)
+                .setEffectiveWeight(1)
+                .fadeIn(0.18);
+        }
+        action.clampWhenFinished = oneShot;
+        action
+            .setLoop(oneShot ? LoopOnce : LoopRepeat, oneShot ? 1 : Infinity)
+            .play();
+        const finished = (event) => {
+            if (event.action === action) finishedCallback.current?.(clip);
+        };
+        if (oneShot) mixer.addEventListener("finished", finished);
+        return () => {
+            mixer.removeEventListener("finished", finished);
+            action.fadeOut(0.18);
+        };
+    }, [actions, clip, mixer]);
+    /* eslint-enable react-hooks/immutability */
+
+    useEffect(() => {
+        if (clip !== "Jump_Land" || pose.locomotion !== "walk") return;
+        const walk = actions.Walk_Loop;
+        if (!walk) return;
+        walk.reset()
+            .setLoop(LoopRepeat, Infinity)
+            .setEffectiveTimeScale(1)
+            .setEffectiveWeight(0.55)
+            .fadeIn(0.18)
+            .play();
+        return () => walk.fadeOut(0.18);
+    }, [actions, clip, pose.locomotion]);
 
     useFrame((_, delta) => {
         if (!group.current || !visual.current) return;

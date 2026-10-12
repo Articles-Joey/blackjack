@@ -1,5 +1,7 @@
 "use client";
 
+import { RigidBody } from "@react-three/rapier";
+
 import { Suspense, useEffect } from "react";
 import { useThree } from "@react-three/fiber";
 import PlayingCard from "./PlayingCard";
@@ -143,29 +145,35 @@ export default function GameScene({
                 decay={2}
             />
 
-            <mesh
-                position={[0, -0.16, 0]}
-                scale={[4.35, 1, 2.95]}
-                castShadow
-                receiveShadow
+            <RigidBody
+                type="fixed"
+                colliders="hull"
+                name="blackjack-table"
             >
-                <cylinderGeometry args={[1, 1, 0.38, 96]} />
-                <meshStandardMaterial
-                    color="#35251f"
-                    roughness={0.75}
-                />
-            </mesh>
-            <mesh
-                position={[0, 0.015, 0]}
-                scale={[4.08, 1, 2.68]}
-                receiveShadow
-            >
-                <cylinderGeometry args={[1, 1, 0.1, 96]} />
-                <meshStandardMaterial
-                    color="#126047"
-                    roughness={0.95}
-                />
-            </mesh>
+                <mesh
+                    position={[0, -0.16, 0]}
+                    scale={[4.35, 1, 2.95]}
+                    castShadow
+                    receiveShadow
+                >
+                    <cylinderGeometry args={[1, 1, 0.38, 96]} />
+                    <meshStandardMaterial
+                        color="#35251f"
+                        roughness={0.75}
+                    />
+                </mesh>
+                <mesh
+                    position={[0, 0.015, 0]}
+                    scale={[4.08, 1, 2.68]}
+                    receiveShadow
+                >
+                    <cylinderGeometry args={[1, 1, 0.1, 96]} />
+                    <meshStandardMaterial
+                        color="#126047"
+                        roughness={0.95}
+                    />
+                </mesh>
+            </RigidBody>
             <mesh
                 position={[0, 0.071, 0]}
                 rotation={[-Math.PI / 2, 0, 0]}

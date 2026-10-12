@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import BoundsRigidBody from "./BoundsRigidBody";
 import WoodBox from "./WoodBox";
 import Bottle, { BOTTLE_COLORS, LABEL_COLORS } from "./Bottle";
 import WineRack, { WINE_RACK_HALF_WIDTH } from "./WineRack";
@@ -76,141 +77,156 @@ export default function RoomBar({
             position={[-wallWidth / 2, floorY, -wallWidth / 2]}
         >
             {/* Counter back is at z=3.8; shelving ends near z=1.2, leaving a clear bartender aisle. */}
-            <WoodBox
-                position={[length / 2, 1.45, 4.55]}
-                size={[length, 2.9, 1.15]}
-                texture={wood}
-                color="#97653d"
-                castShadow
-            />
-            <WoodBox
-                position={[length / 2, 2.95, 4.55]}
-                size={[length + 0.16, 0.22, 1.65]}
-                texture={topWood}
-                color="#e0b782"
-                roughness={0.35}
-                castShadow
-            />
-            {[-0.51, 0, 0.51].map((z) => (
+            {/* One bounding cuboid per furniture piece keeps the aisle open. */}
+            <BoundsRigidBody name="bar-counter">
                 <WoodBox
-                    key={z}
-                    position={[length / 2, 3.073, 4.55 + z]}
-                    size={[length + 0.12, 0.035, 0.495]}
-                    texture={topWood}
-                    color="#dfb586"
-                    roughness={0.35}
-                />
-            ))}
-
-            {Array.from({ length: panelCount }, (_, index) => (
-                <group
-                    key={index}
-                    position={[((index + 0.5) * length) / panelCount, 0, 5.16]}
-                >
-                    <WoodBox
-                        position={[0, 1.45, 0]}
-                        size={[length / panelCount - 0.16, 2.2, 0.055]}
-                        texture={wood}
-                        color="#bf9164"
-                    />
-                    {[-1, 1].map((side) => (
-                        <WoodBox
-                            key={side}
-                            position={[
-                                (side * (length / panelCount - 0.1)) / 2,
-                                1.45,
-                                0.045,
-                            ]}
-                            size={[0.065, 2.45, 0.07]}
-                            texture={wood}
-                        />
-                    ))}
-                </group>
-            ))}
-            {[0.2, 2.7].map((y) => (
-                <WoodBox
-                    key={y}
-                    position={[length / 2, y, 5.2]}
-                    size={[length, 0.13, 0.1]}
+                    position={[length / 2, 1.45, 4.55]}
+                    size={[length, 2.9, 1.15]}
                     texture={wood}
-                    color="#dfb586"
+                    color="#97653d"
+                    castShadow
                 />
-            ))}
-            <mesh
-                position={[length / 2, 0.35, 5.42]}
-                rotation={[0, 0, Math.PI / 2]}
-            >
-                <cylinderGeometry args={[0.055, 0.055, length - 0.45, 12]} />
-                <meshStandardMaterial
-                    color="#b59654"
-                    metalness={0.65}
+                <WoodBox
+                    position={[length / 2, 2.95, 4.55]}
+                    size={[length + 0.16, 0.22, 1.65]}
+                    texture={topWood}
+                    color="#e0b782"
                     roughness={0.35}
+                    castShadow
                 />
-            </mesh>
-            {[0.15, 0.5, 0.85].map((fraction) => (
+                {[-0.51, 0, 0.51].map((z) => (
+                    <WoodBox
+                        key={z}
+                        position={[length / 2, 3.073, 4.55 + z]}
+                        size={[length + 0.12, 0.035, 0.495]}
+                        texture={topWood}
+                        color="#dfb586"
+                        roughness={0.35}
+                    />
+                ))}
+
+                {Array.from({ length: panelCount }, (_, index) => (
+                    <group
+                        key={index}
+                        position={[
+                            ((index + 0.5) * length) / panelCount,
+                            0,
+                            5.16,
+                        ]}
+                    >
+                        <WoodBox
+                            position={[0, 1.45, 0]}
+                            size={[length / panelCount - 0.16, 2.2, 0.055]}
+                            texture={wood}
+                            color="#bf9164"
+                        />
+                        {[-1, 1].map((side) => (
+                            <WoodBox
+                                key={side}
+                                position={[
+                                    (side * (length / panelCount - 0.1)) / 2,
+                                    1.45,
+                                    0.045,
+                                ]}
+                                size={[0.065, 2.45, 0.07]}
+                                texture={wood}
+                            />
+                        ))}
+                    </group>
+                ))}
+                {[0.2, 2.7].map((y) => (
+                    <WoodBox
+                        key={y}
+                        position={[length / 2, y, 5.2]}
+                        size={[length, 0.13, 0.1]}
+                        texture={wood}
+                        color="#dfb586"
+                    />
+                ))}
                 <mesh
-                    key={fraction}
-                    position={[length * fraction, 0.35, 5.27]}
-                    rotation={[Math.PI / 2, 0, 0]}
+                    position={[length / 2, 0.35, 5.42]}
+                    rotation={[0, 0, Math.PI / 2]}
                 >
-                    <cylinderGeometry args={[0.028, 0.028, 0.3, 8]} />
+                    <cylinderGeometry
+                        args={[0.055, 0.055, length - 0.45, 12]}
+                    />
                     <meshStandardMaterial
                         color="#b59654"
                         metalness={0.65}
                         roughness={0.35}
                     />
                 </mesh>
-            ))}
+                {[0.15, 0.5, 0.85].map((fraction) => (
+                    <mesh
+                        key={fraction}
+                        position={[length * fraction, 0.35, 5.27]}
+                        rotation={[Math.PI / 2, 0, 0]}
+                    >
+                        <cylinderGeometry args={[0.028, 0.028, 0.3, 8]} />
+                        <meshStandardMaterial
+                            color="#b59654"
+                            metalness={0.65}
+                            roughness={0.35}
+                        />
+                    </mesh>
+                ))}
+            </BoundsRigidBody>
 
-            <WineRack wood={wood} />
-            <WineRack
-                wood={wood}
-                position={[rightRackCenter, 1.25, 0.64]}
-            />
-            <WoodBox
-                position={[
-                    shelfCenter,
-                    CABINET_BASE + CABINET_SIDE_HEIGHT / 2,
-                    0.12,
-                ]}
-                size={[shelfWidth + 0.15, CABINET_SIDE_HEIGHT, 0.13]}
-                texture={wood}
-                color="#946039"
-            />
-            {[-1, 1].map((side) => (
+            <BoundsRigidBody name="left-wine-rack">
+                <WineRack wood={wood} />
+            </BoundsRigidBody>
+            <BoundsRigidBody name="right-wine-rack">
+                <WineRack
+                    wood={wood}
+                    position={[rightRackCenter, 1.25, 0.64]}
+                />
+            </BoundsRigidBody>
+            <BoundsRigidBody name="bottle-shelf">
                 <WoodBox
-                    key={side}
                     position={[
-                        shelfCenter + (side * shelfWidth) / 2,
+                        shelfCenter,
                         CABINET_BASE + CABINET_SIDE_HEIGHT / 2,
-                        0.67,
+                        0.12,
                     ]}
-                    size={[0.13, CABINET_SIDE_HEIGHT, 1]}
+                    size={[shelfWidth + 0.15, CABINET_SIDE_HEIGHT, 0.13]}
                     texture={wood}
-                    castShadow
+                    color="#946039"
                 />
-            ))}
-            {SHELF_LEVELS.map((y) => (
+                {[-1, 1].map((side) => (
+                    <WoodBox
+                        key={side}
+                        position={[
+                            shelfCenter + (side * shelfWidth) / 2,
+                            CABINET_BASE + CABINET_SIDE_HEIGHT / 2,
+                            0.67,
+                        ]}
+                        size={[0.13, CABINET_SIDE_HEIGHT, 1]}
+                        texture={wood}
+                        castShadow
+                    />
+                ))}
+                {SHELF_LEVELS.map((y) => (
+                    <WoodBox
+                        key={y}
+                        position={[shelfCenter, y, 0.67]}
+                        size={[shelfWidth, 0.13, 1]}
+                        texture={wood}
+                        castShadow
+                    />
+                ))}
                 <WoodBox
-                    key={y}
-                    position={[shelfCenter, y, 0.67]}
-                    size={[shelfWidth, 0.13, 1]}
+                    position={[shelfCenter, CABINET_TOP, 0.67]}
+                    size={[shelfWidth + 0.16, 0.16, 1.08]}
                     texture={wood}
                     castShadow
                 />
-            ))}
-            <WoodBox
-                position={[shelfCenter, CABINET_TOP, 0.67]}
-                size={[shelfWidth + 0.16, 0.16, 1.08]}
-                texture={wood}
-                castShadow
-            />
-            {stock.map(({ key, ...bottle }) => (
-                <Bottle
-                    key={key}
-                    {...bottle}
-                />
-            ))}
+                {stock.map(({ key, ...bottle }) => (
+                    <Bottle
+                        key={key}
+                        {...bottle}
+                    />
+                ))}
+            </BoundsRigidBody>
 
             {Array.from({ length: 4 }, (_, index) => (
                 <BarStool

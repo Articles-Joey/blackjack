@@ -1,10 +1,19 @@
 "use client";
 
 import WoodBox from "./WoodBox";
+import { CylinderCollider, RigidBody } from "@react-three/rapier";
 
 export default function BarStool({ position, wood }) {
     return (
-        <group position={position}>
+        <RigidBody
+            type="fixed"
+            colliders={false}
+            position={position}
+        >
+            <CylinderCollider
+                args={[1.09, 0.57]}
+                position={[0, 1.09, 0]}
+            />
             {[-0.34, 0.34].flatMap((x) =>
                 [-0.34, 0.34].map((z) => (
                     <WoodBox
@@ -51,6 +60,6 @@ export default function BarStool({ position, wood }) {
                     roughness={0.8}
                 />
             </mesh>
-        </group>
+        </RigidBody>
     );
 }
