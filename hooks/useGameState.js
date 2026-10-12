@@ -1,8 +1,7 @@
-import { create } from 'zustand'
-import { useAudioStore } from './useAudioStore';
+import { create } from "zustand";
+import { useAudioStore } from "./useAudioStore";
 
 export const useGameState = create((set, get) => ({
-
     // ─── State ────────────────────────────────────────────────────────────────
     leaderboard: [],
     fetchTime: null,
@@ -13,7 +12,7 @@ export const useGameState = create((set, get) => ({
     dealer: null,
     player: null,
     wallet: 0,
-    inputValue: '',
+    inputValue: "",
     currentBet: null,
     gameOver: false,
     message: null,
@@ -22,8 +21,8 @@ export const useGameState = create((set, get) => ({
 
     // ─── Pure helpers ─────────────────────────────────────────────────────────
     generateDeck: () => {
-        const cards = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'];
-        const suits = ['♦', '♣', '♥', '♠'];
+        const cards = [2, 3, 4, 5, 6, 7, 8, 9, 10, "J", "Q", "K", "A"];
+        const suits = ["♦", "♣", "♥", "♠"];
         const deck = [];
         for (let i = 0; i < cards.length; i++) {
             for (let j = 0; j < suits.length; j++) {
@@ -43,18 +42,22 @@ export const useGameState = create((set, get) => ({
 
     getCount: (cards) => {
         const rearranged = [];
-        cards.forEach(card => {
-            if (card.number === 'A') {
+        cards.forEach((card) => {
+            if (card.number === "A") {
                 rearranged.push(card);
             } else if (card.number) {
                 rearranged.unshift(card);
             }
         });
         return rearranged.reduce((total, card) => {
-            if (card.number === 'J' || card.number === 'Q' || card.number === 'K') {
+            if (
+                card.number === "J" ||
+                card.number === "Q" ||
+                card.number === "K"
+            ) {
                 return total + 10;
-            } else if (card.number === 'A') {
-                return (total + 11 <= 21) ? total + 11 : total + 1;
+            } else if (card.number === "A") {
+                return total + 11 <= 21 ? total + 11 : total + 1;
             } else {
                 return total + card.number;
             }
@@ -66,42 +69,68 @@ export const useGameState = create((set, get) => ({
         const playerCard1 = getRandomCard(deck);
         const dealerCard1 = getRandomCard(playerCard1.updatedDeck);
         const playerCard2 = getRandomCard(dealerCard1.updatedDeck);
-        const playerStartingHand = [playerCard1.randomCard, playerCard2.randomCard];
+        const playerStartingHand = [
+            playerCard1.randomCard,
+            playerCard2.randomCard,
+        ];
         const dealerStartingHand = [dealerCard1.randomCard, {}];
-        const player = { cards: playerStartingHand, count: getCount(playerStartingHand) };
-        const dealer = { cards: dealerStartingHand, count: getCount(dealerStartingHand) };
+        const player = {
+            cards: playerStartingHand,
+            count: getCount(playerStartingHand),
+        };
+        const dealer = {
+            cards: dealerStartingHand,
+            count: getCount(dealerStartingHand),
+        };
         return { updatedDeck: playerCard2.updatedDeck, player, dealer };
     },
 
     dealerDraw: (dealerArg, deckArg) => {
         const { getRandomCard, getCount } = get();
         const { randomCard, updatedDeck } = getRandomCard(deckArg);
-        const updatedDealer = { ...dealerArg, cards: [...dealerArg.cards, randomCard] };
+        const updatedDealer = {
+            ...dealerArg,
+            cards: [...dealerArg.cards, randomCard],
+        };
         updatedDealer.count = getCount(updatedDealer.cards);
         return { dealer: updatedDealer, updatedDeck };
     },
 
     getWinner: (dealerArg, playerArg) => {
-        if (dealerArg.count > playerArg.count) return 'dealer';
-        if (dealerArg.count < playerArg.count) return 'player';
-        return 'push';
+        if (dealerArg.count > playerArg.count) return "dealer";
+        if (dealerArg.count < playerArg.count) return "player";
+        return "push";
     },
 
     // ─── Game actions ─────────────────────────────────────────────────────────
     startNewGame: (type) => {
         const { deck, wallet, generateDeck, dealCards } = get();
-        if (type === 'continue') {
-            if (wallet > 0) {
-                const new_deck = (deck.length < 10) ? generateDeck() : deck;
-                const { updatedDeck, player, dealer } = dealCards(new_deck);
-                set({ deck: updatedDeck, dealer, player, currentBet: null, gameOver: false, message: null });
-            } else {
-                set({ message: 'Game over! You are broke! Please start a new game.' });
-            }
+        if (type === "continue") {
+            const new_deck = deck.length < 10 ? generateDeck() : deck;
+            const { updatedDeck, player, dealer } = dealCards(new_deck);
+            set({
+                deck: updatedDeck,
+                dealer,
+                player,
+                currentBet: null,
+                gameOver: false,
+                message:
+                    wallet > 0
+                        ? null
+                        : "You are out of points. Claim 100 points when your daily claim is available.",
+            });
         } else {
             const newDeck = generateDeck();
             const { updatedDeck, player, dealer } = dealCards(newDeck);
-            set({ deck: updatedDeck, dealer, player, inputValue: '', currentBet: null, gameOver: false, message: null });
+            set({
+                deck: updatedDeck,
+                dealer,
+                player,
+                inputValue: "",
+                currentBet: null,
+                gameOver: false,
+                message: null,
+            });
         }
     },
 
@@ -109,63 +138,95 @@ export const useGameState = create((set, get) => ({
         const { inputValue, wallet, leaderboard } = get();
         const currentBet = inputValue;
         if (currentBet > wallet) {
-            set({ message: 'Insufficient funds to bet that amount.' });
+            set({ message: "Insufficient funds to bet that amount." });
         } else if (currentBet % 1 !== 0) {
-            set({ message: 'Please bet whole numbers only.' });
+            set({ message: "Please bet whole numbers only." });
         } else {
             const new_wallet = wallet - currentBet;
-            fetch('/api/user/lose', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            fetch("/api/user/lose", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ amount: currentBet }),
             })
-                .then(async response => {
+                .then(async (response) => {
                     const data = await response.json();
                     console.log(data);
-                    const tempBoard = leaderboard.map(obj =>
+                    const tempBoard = leaderboard.map((obj) =>
                         obj.user_id == userDetails?.user_id
-                            ? { ...obj, total: new_wallet, last_play: new Date() }
-                            : obj
+                            ? {
+                                  ...obj,
+                                  total: new_wallet,
+                                  last_play: new Date(),
+                              }
+                            : obj,
                     );
-                    set({ wallet: new_wallet, leaderboard: tempBoard, inputValue: '', currentBet });
+                    set({
+                        wallet: new_wallet,
+                        leaderboard: tempBoard,
+                        inputValue: "",
+                        currentBet,
+                    });
                 })
-                .catch(error => { console.log(error); });
+                .catch((error) => {
+                    console.log(error);
+                });
         }
     },
 
     hit: () => {
-        const { gameOver, currentBet, deck, player, getRandomCard, getCount } = get();
+        const { gameOver, currentBet, deck, player, getRandomCard, getCount } =
+            get();
         if (!gameOver) {
-
-            useAudioStore.getState().playCardSound()
+            useAudioStore.getState().playCardSound();
 
             if (currentBet) {
                 const { randomCard, updatedDeck } = getRandomCard(deck);
-                const new_player = { ...player, cards: [...player.cards, randomCard] };
+                const new_player = {
+                    ...player,
+                    cards: [...player.cards, randomCard],
+                };
                 new_player.count = getCount(new_player.cards);
                 if (new_player.count > 21) {
-                    set({ player: new_player, gameOver: true, message: 'BUST!' });
+                    set({
+                        player: new_player,
+                        gameOver: true,
+                        message: "BUST!",
+                    });
                 } else {
                     set({ deck: updatedDeck, player: new_player });
                 }
             } else {
-                set({ message: 'Please place bet.' });
+                set({ message: "Please place bet." });
             }
         } else {
-            set({ message: 'Game over! Please start a new game.' });
+            set({ message: "Game over! Please start a new game." });
         }
     },
 
     stand: (userDetails) => {
-        const { gameOver, deck, dealer, player, wallet, currentBet, leaderboard, getRandomCard, getCount, dealerDraw, getWinner } = get();
+        const {
+            gameOver,
+            deck,
+            dealer,
+            player,
+            wallet,
+            currentBet,
+            leaderboard,
+            getRandomCard,
+            getCount,
+            dealerDraw,
+            getWinner,
+        } = get();
         if (!gameOver) {
-
-            useAudioStore.getState().playCardSound()
+            useAudioStore.getState().playCardSound();
 
             const randomCard = getRandomCard(deck);
             let updated_deck = randomCard.updatedDeck;
             // Replace placeholder {} second card with the revealed card
-            let updated_dealer = { ...dealer, cards: [...dealer.cards.slice(0, -1), randomCard.randomCard] };
+            let updated_dealer = {
+                ...dealer,
+                cards: [...dealer.cards.slice(0, -1), randomCard.randomCard],
+            };
             updated_dealer.count = getCount(updated_dealer.cards);
 
             while (updated_dealer.count < 17) {
@@ -175,118 +236,150 @@ export const useGameState = create((set, get) => ({
             }
 
             if (updated_dealer.count > 21) {
-                set({ deck: updated_deck, dealer: updated_dealer, gameOver: true, message: 'Dealer bust! You win!' });
-                fetch('/api/user/win', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                set({
+                    deck: updated_deck,
+                    dealer: updated_dealer,
+                    gameOver: true,
+                    message: "Dealer bust! You win!",
+                });
+                fetch("/api/user/win", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ amount: currentBet * 2 }),
                 })
-                    .then(async response => {
+                    .then(async (response) => {
                         const data = await response.json();
                         console.log(data);
-                        const newWallet = wallet + (currentBet * 2);
-                        const tempBoard = leaderboard.map(obj =>
-                            obj.user_id == userDetails?.user_id ? { ...obj, total: newWallet } : obj
+                        const newWallet = wallet + currentBet * 2;
+                        const tempBoard = leaderboard.map((obj) =>
+                            obj.user_id == userDetails?.user_id
+                                ? { ...obj, total: newWallet }
+                                : obj,
                         );
                         set({ wallet: newWallet, leaderboard: tempBoard });
                     })
-                    .catch(error => { console.log(error); });
+                    .catch((error) => {
+                        console.log(error);
+                    });
             } else {
                 const winner = getWinner(updated_dealer, player);
                 let temp_wallet = wallet;
                 let message;
 
-                if (winner === 'dealer') {
-                    message = 'Dealer wins...';
-                } else if (winner === 'player') {
+                if (winner === "dealer") {
+                    message = "Dealer wins...";
+                } else if (winner === "player") {
                     temp_wallet += currentBet * 2;
-                    message = 'You win!';
-                    fetch('/api/user/win', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                    message = "You win!";
+                    fetch("/api/user/win", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ amount: currentBet * 2 }),
                     })
-                        .then(async response => {
+                        .then(async (response) => {
                             const data = await response.json();
                             console.log(data);
                         })
-                        .catch(error => { console.log(error); });
+                        .catch((error) => {
+                            console.log(error);
+                        });
                 } else {
                     temp_wallet += currentBet;
-                    message = 'Push.';
-                    fetch('/api/user/win', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                    message = "Push.";
+                    fetch("/api/user/win", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ amount: currentBet }),
                     })
-                        .then(async response => {
+                        .then(async (response) => {
                             const data = await response.json();
                             console.log(data);
                         })
-                        .catch(error => { console.log(error); });
+                        .catch((error) => {
+                            console.log(error);
+                        });
                 }
 
-                const tempBoard = leaderboard.map(obj =>
-                    obj.user_id == userDetails?.user_id ? { ...obj, total: temp_wallet } : obj
+                const tempBoard = leaderboard.map((obj) =>
+                    obj.user_id == userDetails?.user_id
+                        ? { ...obj, total: temp_wallet }
+                        : obj,
                 );
-                set({ deck: updated_deck, dealer: updated_dealer, wallet: temp_wallet, leaderboard: tempBoard, gameOver: true, message });
+                set({
+                    deck: updated_deck,
+                    dealer: updated_dealer,
+                    wallet: temp_wallet,
+                    leaderboard: tempBoard,
+                    gameOver: true,
+                    message,
+                });
             }
         } else {
-            set({ message: 'Game over! Please start a new game.' });
+            set({ message: "Game over! Please start a new game." });
         }
     },
 
     // ─── Leaderboard / wallet actions ─────────────────────────────────────────
     claim: (userDetails) => {
         const { wallet, leaderboard } = get();
-        fetch('/api/user/claim', { method: 'POST' })
-            .then(async response => {
+        fetch("/api/user/claim", { method: "POST" })
+            .then(async (response) => {
                 const data = await response.json();
                 console.log(data);
                 const newWallet = wallet + 100;
-                const tempBoard = leaderboard.map(obj =>
+                const tempBoard = leaderboard.map((obj) =>
                     obj.user_id == userDetails?.user_id
                         ? { ...obj, total: newWallet, last_play: new Date() }
-                        : obj
+                        : obj,
                 );
-                set({ wallet: newWallet, leaderboard: tempBoard, lastClaim: new Date() });
+                set({
+                    wallet: newWallet,
+                    leaderboard: tempBoard,
+                    lastClaim: new Date(),
+                });
             })
-            .catch(error => { console.log(error); });
+            .catch((error) => {
+                console.log(error);
+            });
     },
 
     makePointsPublic: () => {
-        fetch('/api/user/public', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        fetch("/api/user/public", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ public: true }),
         })
             .then(() => {
                 set({ publicScore: true });
                 get().getLeaderboard();
             })
-            .catch(error => { console.log(error); });
+            .catch((error) => {
+                console.log(error);
+            });
     },
 
     makePointsPrivate: () => {
-        fetch('/api/user/private', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        fetch("/api/user/private", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ public: false }),
         })
             .then(() => {
                 set({ publicScore: false });
                 get().getLeaderboard();
             })
-            .catch(error => { console.log(error); });
+            .catch((error) => {
+                console.log(error);
+            });
     },
 
     editPublicLastPlay: (state) => {
-        fetch('/api/user/setPublicLastPlay', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        fetch("/api/user/setPublicLastPlay", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ state }),
         })
-            .then(async response => {
+            .then(async (response) => {
                 const data = await response.json();
                 if (data === true) {
                     set({ publicLastPlay: true });
@@ -297,22 +390,26 @@ export const useGameState = create((set, get) => ({
                     get().getLeaderboard();
                 }
             })
-            .catch(error => { console.log(error); });
+            .catch((error) => {
+                console.log(error);
+            });
     },
 
     getLeaderboard: () => {
-        fetch('/api/leaderboard')
-            .then(async response => {
+        fetch("/api/leaderboard")
+            .then(async (response) => {
                 const data = await response.json();
                 console.log(data);
                 set({ leaderboard: data });
             })
-            .catch(error => { console.log(error); });
+            .catch((error) => {
+                console.log(error);
+            });
     },
 
     getWalletBalance: () => {
-        fetch('/api/user/wallet-balance')
-            .then(async response => {
+        fetch("/api/user/wallet-balance")
+            .then(async (response) => {
                 const data = await response.json();
                 console.log(data);
                 if (data.total == 0 || data.total) {
@@ -328,6 +425,8 @@ export const useGameState = create((set, get) => ({
                     get().startNewGame();
                 }
             })
-            .catch(error => { console.log(error); });
+            .catch((error) => {
+                console.log(error);
+            });
     },
-}))
+}));

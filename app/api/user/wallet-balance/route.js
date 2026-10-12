@@ -1,15 +1,14 @@
-import { ObjectId } from 'mongodb';
+import { ObjectId } from "mongodb";
 
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
-import clientPromise from '@/util/mongodb';
-import verifySession from '@/util/verifySession';
+import clientPromise from "@/util/mongodb";
+import verifySession from "@/util/verifySession";
 
 export async function GET(req) {
-
     const db = (await clientPromise).db();
-    const userId = req.headers.get('x-user-id');
-    console.log("userId", userId)
+    const userId = req.headers.get("x-user-id");
+    console.log("userId", userId);
     // return NextResponse.json({ error: 'TEST' }, { status: 401 });
 
     // const cookieStore = await cookies();
@@ -23,31 +22,23 @@ export async function GET(req) {
     // }
 
     // Check last claim date
-    var result = await db
-        .collection("blackjack_wallets")
-        .findOne({
-            user_id: new ObjectId(userId),
-        })
+    var result = await db.collection("blackjack_wallets").findOne({
+        user_id: new ObjectId(userId),
+    });
 
     // If last claim date is more then 24 hours then claim
     if (result) {
-
-        return NextResponse.json(result)
-
+        return NextResponse.json(result);
     } else {
-
-        var insert_result = await db
-            .collection("blackjack_wallets")
-            .insertOne({
-                user_id: new ObjectId(userId),
-                last_claim: new Date(),
-                total: 100
-            })
+        var insert_result = await db.collection("blackjack_wallets").insertOne({
+            user_id: new ObjectId(userId),
+            last_claim: new Date(),
+            total: 100,
+        });
 
         return NextResponse.json({
-            "message": "New user",
-            result: insert_result
-        })
-
+            message: "New user",
+            result: insert_result,
+        });
     }
 }

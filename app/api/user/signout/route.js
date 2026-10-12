@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 export async function POST(request) {
-    const response = NextResponse.json({ message: 'Signed out' });
-    response.cookies.set('sess', '', {
+    const response = NextResponse.json({ message: "Signed out" });
+    response.cookies.set("sess", "", {
         httpOnly: true,
-        path: '/',
+        path: "/",
         expires: new Date(0),
     });
     return response;

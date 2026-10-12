@@ -5,7 +5,6 @@ import { useStore } from "@/hooks/useStore";
 import { useEffect, useRef } from "react";
 
 export default function AudioHandler() {
-
     const audioSettings = useAudioStore((state) => state?.audioSettings);
     const setAudioSettings = useAudioStore((state) => state?.setAudioSettings);
 
@@ -13,10 +12,10 @@ export default function AudioHandler() {
     const interactedRef = useRef(false);
 
     useEffect(() => {
-        if (typeof window === 'undefined') return;
+        if (typeof window === "undefined") return;
 
         const music = new Audio();
-        music.preload = 'none';
+        music.preload = "none";
         music.src = `/audio/tunetank-jazz-cafe-background-348913-compressed.mp3`;
         musicRef.current = music;
 
@@ -36,11 +35,20 @@ export default function AudioHandler() {
             if (interactedRef.current) {
                 music.play();
             } else {
-                const events = ['click', 'keydown', 'touchstart', 'pointerdown'];
-                events.forEach((e) => document.addEventListener(e, tryPlay, { once: true }));
+                const events = [
+                    "click",
+                    "keydown",
+                    "touchstart",
+                    "pointerdown",
+                ];
+                events.forEach((e) =>
+                    document.addEventListener(e, tryPlay, { once: true }),
+                );
 
                 return () => {
-                    events.forEach((e) => document.removeEventListener(e, tryPlay));
+                    events.forEach((e) =>
+                        document.removeEventListener(e, tryPlay),
+                    );
                     music.pause();
                 };
             }
@@ -53,10 +61,11 @@ export default function AudioHandler() {
 
     useEffect(() => {
         if (musicRef.current) {
-            musicRef.current.volume = audioSettings?.enabled ? (audioSettings?.music_volume / 100) : 0;
+            musicRef.current.volume = audioSettings?.enabled
+                ? audioSettings?.music_volume / 100
+                : 0;
         }
     }, [audioSettings?.music_volume, audioSettings?.enabled]);
 
     return null;
-
 }

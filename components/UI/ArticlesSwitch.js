@@ -2,7 +2,12 @@
 
 import Switch from "@mui/material/Switch";
 
-export default function ArticlesSwitch({ setChecked, checked, readOnly, ...props }) {
+export default function ArticlesSwitch({
+    setChecked,
+    checked,
+    readOnly,
+    ...props
+}) {
     return (
         <Switch
             {...props}
@@ -11,7 +16,14 @@ export default function ArticlesSwitch({ setChecked, checked, readOnly, ...props
             onChange={(_, value) => {
                 if (!readOnly) setChecked?.(value);
             }}
-            sx={[{ m: 0 }, ...(Array.isArray(props.sx) ? props.sx : props.sx ? [props.sx] : [])]}
+            sx={[
+                { m: 0 },
+                ...(Array.isArray(props.sx)
+                    ? props.sx
+                    : props.sx
+                      ? [props.sx]
+                      : []),
+            ]}
         />
     );
 }
