@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import ViewUserModal from "@articles-media/articles-dev-box/ViewUserModal";
 import ArticlesButton from "@/components/UI/Button";
 import DailyClaim from "./DailyClaim";
-import GameMenuPrimaryButtonGroup from "@articles-media/articles-dev-box/GameMenuPrimaryButtonGroup";
+import GameMenuButtons from "./GameMenuButtons";
 
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -14,6 +14,8 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { useStore } from "@/hooks/useStore";
+import PlayModeSelect from "./PlayModeSelect";
+import PlayerControls from "./PlayerControls";
 
 const SessionButton = lazy(
     () => import("@articles-media/articles-dev-box/SessionButton"),
@@ -28,7 +30,7 @@ export default function Sidebar({
     showCardFaces = false,
     onToggleCardFaces,
     isOffline = false,
-    onTogglePlayMode,
+    onChangePlayMode,
     gameState,
     userDetails,
 }) {
@@ -48,19 +50,7 @@ export default function Sidebar({
     function Buttons() {
         return (
             <Box>
-                <Box sx={{ display: "flex", flexWrap: "wrap", mb: "1rem" }}>
-                    <GameMenuPrimaryButtonGroup
-                        useStore={useStore}
-                        type="GameMenu"
-                        SettingsOverride={<></>}
-                        SidebarOverride={<></>}
-                        LeaveGameOverride={<></>}
-                    />
-                    <GameMenuPrimaryButtonGroup
-                        useStore={useStore}
-                        type="Landing"
-                    />
-                </Box>
+                <GameMenuButtons />
 
                 <Box>
                     {!isOffline && (
@@ -99,15 +89,14 @@ export default function Sidebar({
                 }),
             }}
         >
-            {onTogglePlayMode && (
-                <ArticlesButton
-                    aria-pressed={isOffline}
-                    onClick={onTogglePlayMode}
-                    sx={{ width: "100%", mb: "0.5rem" }}
-                >
-                    Play Mode: {isOffline ? "Offline" : "Online"}
-                </ArticlesButton>
+            {onChangePlayMode && (
+                <PlayModeSelect
+                    value={isOffline ? "offline" : "online"}
+                    onChange={onChangePlayMode}
+                />
             )}
+
+            {is3DMode && !showCardFaces && <PlayerControls />}
 
             {onToggle3DMode && (
                 <ArticlesButton
@@ -119,15 +108,17 @@ export default function Sidebar({
                 </ArticlesButton>
             )}
 
-            {is3DMode && onToggleCardFaces && (
-                <ArticlesButton
-                    aria-pressed={showCardFaces}
-                    onClick={onToggleCardFaces}
-                    sx={{ width: "100%", mb: "0.5rem" }}
-                >
-                    Card Preview: {showCardFaces ? "On" : "Off"}
-                </ArticlesButton>
-            )}
+            {is3DMode &&
+                onToggleCardFaces &&
+                process.env.NODE_ENV === "development" && (
+                    <ArticlesButton
+                        aria-pressed={showCardFaces}
+                        onClick={onToggleCardFaces}
+                        sx={{ width: "100%", mb: "0.5rem" }}
+                    >
+                        Card Preview: {showCardFaces ? "On" : "Off"}
+                    </ArticlesButton>
+                )}
 
             {showCardFaces && (
                 <Typography

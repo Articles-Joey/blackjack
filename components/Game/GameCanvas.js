@@ -12,6 +12,8 @@ import CardFacePreview from "./CardFacePreview";
 import { getCardAppearance } from "./cardArtwork";
 import { Stats } from "@react-three/drei";
 import { useStore } from "@/hooks/useStore";
+import CameraDistanceIndicator from "@/components/UI/CameraDistanceIndicator";
+import PlayerKeyGuide from "@/components/UI/PlayerKeyGuide";
 
 class CanvasErrorBoundary extends Component {
     state = { failed: false };
@@ -31,6 +33,7 @@ export default function GameCanvas({
     currentBet,
     onDisable3D,
     showCardFaces = false,
+    multiplayer = false,
 }) {
     const showStats = useStore((state) => state?.debugConfig?.showStats);
     const theme = useTheme();
@@ -59,68 +62,73 @@ export default function GameCanvas({
     );
 
     return (
-        <Box
-            role="region"
-            aria-label={
-                showCardFaces
-                    ? "All 52 card faces, arranged A through K in rows of hearts, diamonds, clubs, and spades. Drag to pan and scroll or pinch to zoom."
-                    : "3D blackjack room. Drag the background to orbit and scroll or pinch to zoom."
-            }
-            sx={{
-                position: "fixed",
-                inset: 0,
-                width: "100%",
-                height: "100dvh",
-                zIndex: 0,
-                pointerEvents: "auto",
-                touchAction: "none",
-                overflow: "hidden",
-                bgcolor: "#191612",
-            }}
-        >
-            <CanvasErrorBoundary fallback={fallback}>
-                <Canvas
-                    key={showCardFaces ? "card-preview" : "game-room"}
-                    orthographic={showCardFaces}
-                    shadows
-                    frameloop="demand"
-                    dpr={[1, 1.5]}
-                    camera={
-                        showCardFaces
-                            ? {
-                                  position: [0, 14, 0.001],
-                                  near: 0.1,
-                                  far: 80,
-                                  zoom: 1,
-                              }
-                            : {
-                                  position: [6, 6.5, 8.5],
-                                  fov: 48,
-                                  near: 0.1,
-                                  far: 80,
-                              }
-                    }
-                    gl={{ antialias: true, alpha: false }}
-                    fallback={fallback}
-                >
-                    {showStats && (
-                        <>
-                            <Stats className="stats-overlay" />
-                        </>
-                    )}
-                    {showCardFaces ? (
-                        <CardFacePreview cardAppearance={cardAppearance} />
-                    ) : (
-                        <GameScene
-                            player={player}
-                            dealer={dealer}
-                            currentBet={currentBet}
-                            reducedMotion={reducedMotion}
-                            cardAppearance={cardAppearance}
-                        />
-                    )}
-                </Canvas>
-            </CanvasErrorBoundary>
-        </Box>
+        <>
+            <Box
+                role="region"
+                aria-label={
+                    showCardFaces
+                        ? "All 52 card faces, arranged A through K in rows of hearts, diamonds, clubs, and spades. Drag to pan and scroll or pinch to zoom."
+                        : "3D blackjack room. Drag the background to orbit and scroll or pinch to zoom."
+                }
+                sx={{
+                    position: "fixed",
+                    inset: 0,
+                    width: "100%",
+                    height: "100dvh",
+                    zIndex: 0,
+                    pointerEvents: "auto",
+                    touchAction: "none",
+                    overflow: "hidden",
+                    bgcolor: "#191612",
+                }}
+            >
+                <CanvasErrorBoundary fallback={fallback}>
+                    <Canvas
+                        key={showCardFaces ? "card-preview" : "game-room"}
+                        orthographic={showCardFaces}
+                        shadows
+                        frameloop={showCardFaces ? "demand" : "always"}
+                        dpr={[1, 1.5]}
+                        camera={
+                            showCardFaces
+                                ? {
+                                      position: [0, 14, 0.001],
+                                      near: 0.1,
+                                      far: 80,
+                                      zoom: 1,
+                                  }
+                                : {
+                                      position: [6, 6.5, 8.5],
+                                      fov: 48,
+                                      near: 0.1,
+                                      far: 80,
+                                  }
+                        }
+                        gl={{ antialias: true, alpha: false }}
+                        fallback={fallback}
+                    >
+                        {showStats && (
+                            <>
+                                <Stats className="stats-overlay" />
+                            </>
+                        )}
+                        {showCardFaces ? (
+                            <CardFacePreview cardAppearance={cardAppearance} />
+                        ) : (
+                            <GameScene
+                                player={player}
+                                dealer={dealer}
+                                currentBet={currentBet}
+                                reducedMotion={reducedMotion}
+                                cardAppearance={cardAppearance}
+                                multiplayer={multiplayer}
+                            />
+                        )}
+                    </Canvas>
+                </CanvasErrorBoundary>
+            </Box>
+            {!showCardFaces && <CameraDistanceIndicator />}
+            {!showCardFaces && <PlayerKeyGuide />}
+        </>
     );
 }

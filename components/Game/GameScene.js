@@ -1,12 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useThree } from "@react-three/fiber";
 import PlayingCard from "./PlayingCard";
 import GameRoom from "./GameRoom";
 import SceneOrbitControls from "./SceneOrbitControls";
 import CardStack from "./CardStack";
 import Ashtray from "./Ashtray";
+import Dealer from "./Dealer";
+import Players from "./Players";
+import PlayerController from "./PlayerController";
+import MultiplayerTable, {
+    ChairName,
+} from "@/components/Multiplayer/MultiplayerTable";
+import { DEALER_SEAT, PLAYER_SEATS } from "./playerSeats";
+import { usePlayerControllerStore } from "@/hooks/usePlayerControllerStore";
 
 function Hand({ cards = [], z, reducedMotion, cardAppearance }) {
     const spacing = Math.min(0.92, 6 / Math.max(cards.length, 1));
@@ -66,8 +74,10 @@ export default function GameScene({
     currentBet,
     reducedMotion = false,
     cardAppearance,
+    multiplayer = false,
 }) {
     const invalidate = useThree((state) => state.invalidate);
+    const playerMode = usePlayerControllerStore((state) => state.enabled);
 
     useEffect(() => {
         // Render the cleared table even after the last card stops requesting frames.
@@ -82,8 +92,28 @@ export default function GameScene({
             />
             <ambientLight intensity={0.75} />
             <hemisphereLight args={["#fff0d2", "#263a2b", 1.2]} />
-            <SceneOrbitControls reducedMotion={reducedMotion} />
+            {!playerMode && (
+                <SceneOrbitControls reducedMotion={reducedMotion} />
+            )}
             <GameRoom reducedMotion={reducedMotion} />
+            <Suspense fallback={null}>
+                <Dealer />
+                <PlayerController
+                    key={multiplayer ? "multiplayer" : "solo"}
+                    multiplayer={multiplayer}
+                />
+                {multiplayer && <Players />}
+                <ChairName
+                    seat={DEALER_SEAT}
+                    nickname="Dealer"
+                />
+                {!multiplayer && (
+                    <ChairName
+                        seat={PLAYER_SEATS[0]}
+                        nickname="You"
+                    />
+                )}
+            </Suspense>
             {/* Include corner furniture in the shadow camera's coverage. */}
             <directionalLight
                 position={[3, 7, 4]}
@@ -148,7 +178,16 @@ export default function GameScene({
                 />
             </mesh>
 
-            {Boolean(currentBet) && (
+            {multiplayer && (
+                <Suspense fallback={null}>
+                    <MultiplayerTable
+                        cardAppearance={cardAppearance}
+                        reducedMotion={reducedMotion}
+                    />
+                </Suspense>
+            )}
+
+            {!multiplayer && Boolean(currentBet) && (
                 <>
                     <Hand
                         cards={dealer?.cards}
@@ -165,30 +204,34 @@ export default function GameScene({
                 </>
             )}
 
-            <ChipStack
-                position={[-3.1, 0.105, 0.5]}
-                color="#ba3746"
-                count={4}
-            />
-            <ChipStack
-                position={[-2.65, 0.105, 0.8]}
-                color="#e5d5ae"
-                count={3}
-            />
-            <ChipStack
-                position={[3.1, 0.105, -0]}
-                color="#305cba"
-                count={5}
-            />
-            <CardStack
-                position={[2.8, 0.07, -1.2]}
-                appearance={cardAppearance}
-            />
-            <Ashtray
-                position={[-2.65, 0.07, -0.15]}
-                rotation={[0, 0.35, 0]}
-                reducedMotion={reducedMotion}
-            />
+            {!multiplayer && (
+                <>
+                    <ChipStack
+                        position={[-3.1, 0.105, 0.5]}
+                        color="#ba3746"
+                        count={4}
+                    />
+                    <ChipStack
+                        position={[-2.65, 0.105, 0.8]}
+                        color="#e5d5ae"
+                        count={3}
+                    />
+                    <ChipStack
+                        position={[3.1, 0.105, -0]}
+                        color="#305cba"
+                        count={5}
+                    />
+                    <CardStack
+                        position={[2.8, 0.07, -1.2]}
+                        appearance={cardAppearance}
+                    />
+                    <Ashtray
+                        position={[-2.65, 0.07, -0.15]}
+                        rotation={[0, 0.35, 0]}
+                        reducedMotion={reducedMotion}
+                    />
+                </>
+            )}
         </>
     );
 }

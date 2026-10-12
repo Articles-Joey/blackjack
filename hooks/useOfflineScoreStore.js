@@ -84,7 +84,7 @@ export const useOfflineScoreStore = create()(
             },
 
             setPlayMode: (playMode) => {
-                if (playMode === "online" || playMode === "offline")
+                if (["online", "offline", "multiplayer"].includes(playMode))
                     set({ playMode });
             },
 

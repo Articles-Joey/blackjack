@@ -28,6 +28,11 @@ import GameHandSummary from "@/components/Game/GameHandSummary";
 import Card from "@/components/Game/GameCard";
 import { useAudioStore } from "@/hooks/useAudioStore";
 import ToggleOnIcon from "@mui/icons-material/ToggleOn";
+import MultiplayerPage from "@/components/Multiplayer/MultiplayerPage";
+import {
+    capturePlayerPointer,
+    usePlayerControllerStore,
+} from "@/hooks/usePlayerControllerStore";
 
 const GameCanvas = dynamic(() => import("@/components/Game/GameCanvas"), {
     ssr: false,
@@ -82,12 +87,21 @@ export default function BlackjackPage() {
         setIs3DMode,
         showCardFaces,
         setShowCardFaces,
-        onTogglePlayMode: () =>
-            setPlayMode(playMode === "offline" ? "online" : "offline"),
+        onChangePlayMode: (mode) => {
+            if (mode === playMode) return;
+            setShowCardFaces(false);
+            usePlayerControllerStore
+                .getState()
+                .setEnabled(mode === "multiplayer");
+            if (mode === "multiplayer") setIs3DMode(true);
+            setPlayMode(mode);
+        },
         onPlayOffline: () => setPlayMode("offline"),
     };
 
-    return playMode === "offline" ? (
+    return playMode === "multiplayer" ? (
+        <MultiplayerPage {...viewProps} />
+    ) : playMode === "offline" ? (
         <OfflineBlackjackPage {...viewProps} />
     ) : (
         <OnlineBlackjackPage {...viewProps} />
@@ -143,7 +157,7 @@ function BlackjackView({
     setIs3DMode,
     showCardFaces,
     setShowCardFaces,
-    onTogglePlayMode,
+    onChangePlayMode,
     onPlayOffline,
 }) {
     const darkMode = useStore((state) => state.darkMode);
@@ -241,7 +255,7 @@ function BlackjackView({
                     setShowCardFaces((enabled) => !enabled)
                 }
                 isOffline={isOffline}
-                onTogglePlayMode={onTogglePlayMode}
+                onChangePlayMode={onChangePlayMode}
                 gameState={gameState}
                 userDetails={userDetails}
             />
@@ -358,6 +372,7 @@ function BlackjackView({
                                             disabled={gameOver}
                                             onClick={() => {
                                                 hit();
+                                                capturePlayerPointer();
                                             }}
                                         >
                                             Hit
@@ -367,6 +382,7 @@ function BlackjackView({
                                             disabled={gameOver}
                                             onClick={() => {
                                                 stand(userDetails);
+                                                capturePlayerPointer();
                                             }}
                                         >
                                             Stand

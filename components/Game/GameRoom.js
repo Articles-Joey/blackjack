@@ -9,8 +9,9 @@ import FirewoodRack from "./FirewoodRack";
 import Jukebox from "./Jukebox";
 import FramedArt from "./FramedArt";
 import CaseClock from "./CaseClock";
+import { FLOOR_Y, TABLE_SEATS } from "./playerSeats";
 
-export const ROOM_FLOOR_Y = -2.8;
+export const ROOM_FLOOR_Y = FLOOR_Y;
 const ROOM_WIDTH = 28;
 const ROOM_HEIGHT = 12;
 const PANEL_HEIGHT = ROOM_HEIGHT * 0.2;
@@ -353,24 +354,17 @@ export default function GameRoom({ reducedMotion = false }) {
                 reducedMotion={reducedMotion}
             />
 
-            {Array.from({ length: 8 }, (_, index) => {
-                const angle = (index * Math.PI) / 4;
-                return (
-                    <LowPolyChair
-                        key={index}
-                        position={[
-                            Math.sin(angle) * 5.6,
-                            ROOM_FLOOR_Y,
-                            Math.cos(angle) * 4.2,
-                        ]}
-                        rotation={angle}
-                        wood={chairWood}
-                        crossWood={chairCrossWood}
-                        felt={cushionFelt}
-                        feltBump={cushionFeltBump}
-                    />
-                );
-            })}
+            {TABLE_SEATS.map((seat) => (
+                <LowPolyChair
+                    key={seat.id}
+                    position={seat.position}
+                    rotation={seat.chairRotation}
+                    wood={chairWood}
+                    crossWood={chairCrossWood}
+                    felt={cushionFelt}
+                    feltBump={cushionFeltBump}
+                />
+            ))}
 
             {[-2.8, 2.8].flatMap((x) =>
                 [-1.6, 1.6].map((z) => (
